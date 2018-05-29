@@ -33,19 +33,17 @@
     let latitude, longitude, altitude, accuracy, altitudeAccuracy, heading, speed = null;
 
     function updatePosition(position) {
-        console.log("Position: ", position);
         let pos = position.coords;
-        latitude.innerText = pos.latitude.toFixed(4);
-        longitude.innerText = pos.longitude.toFixed(4);
-        altitude.innerText = pos.altitude;
-        accuracy.innerText = pos.accuracy.toFixed(1);
-        altitudeAccuracy.innerText = pos.altitudeAccuracy.toFixed(1);
-        heading.innerText = pos.heading;
-        speed.innerText = pos.speed.toFixed(2);
+        latitude.innerText = pos.latitude ? pos.latitude.toFixed(4) : "-";
+        longitude.innerText = pos.longitude ? pos.longitude.toFixed(4) : "-";
+        altitude.innerText = pos.altitude ? pos.altitude : "-";
+        accuracy.innerText = pos.accuracy ? pos.accuracy.toFixed(1) : "-";
+        altitudeAccuracy.innerText = pos.altitudeAccuracy ? pos.altitudeAccuracy.toFixed(1) : "-";
+        heading.innerText = pos.heading ? pos.heading : "-";
+        speed.innerText = pos.speed ? pos.speed.toFixed(2) : "-";
     }
 
     document.addEventListener("DOMContentLoaded", function (e) {
-        console.log("Loaded");
         latitude = document.getElementById("latitude");
         longitude = document.getElementById("longitude");
         altitude = document.getElementById("altitude");
@@ -60,12 +58,12 @@
             enableHighAccuracy: true,
             maximumAge: 60000
         });
-        console.log("Done: "+watchId);
     });
 
 </script>
 <body>
 <h2>Current Position - GPS</h2>
+<h4>Shows you your current GPS position from your browser.</h4>
 <div class="container">
     <div>
         <div class="label">Latitude</div>
