@@ -14,6 +14,7 @@
 
     .container {
         display: flex;
+        flex-wrap: wrap;
     }
     
     .container div {
@@ -37,10 +38,10 @@
         latitude.innerText = pos.latitude.toFixed(4);
         longitude.innerText = pos.longitude.toFixed(4);
         altitude.innerText = pos.altitude;
-        accuracy.innerText = pos.accuracy;
-        altitudeAccuracy.innerText = pos.altitudeAccuracy;
+        accuracy.innerText = pos.accuracy.toFixed(1);
+        altitudeAccuracy.innerText = pos.altitudeAccuracy.toFixed(1);
         heading.innerText = pos.heading;
-        speed.innerText = pos.speed;
+        speed.innerText = pos.speed.toFixed(2);
     }
 
     document.addEventListener("DOMContentLoaded", function (e) {
