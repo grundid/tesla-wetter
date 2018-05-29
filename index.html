@@ -33,7 +33,14 @@
 
     function updatePosition(position) {
         console.log("Position: ", position);
-
+        let pos = position.coords;
+        latitude.innerText = pos.latitude;
+        longitude.innerText = pos.longitude;
+        altitude.innerText = pos.altitude;
+        accuracy.innerText = pos.accuracy;
+        altitudeAccuracy.innerText = pos.altitudeAccuracy;
+        heading.innerText = pos.heading;
+        speed.innerText = pos.speed;
     }
 
     document.addEventListener("DOMContentLoaded", function (e) {
