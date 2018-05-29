@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Tesla Wetter</title>
+</head>
+<style>
+    body {
+        font-family: sans-serif;
+    }
+
+    .container {
+        display: flex;
+    }
+    
+    .container div {
+        margin-right: 16px;
+    }
+    
+    .label {
+        
+    }
+    .value {
+        font-size: 34px;
+    }
+
+</style>
+<script>
+    let latitude, longitude, altitude, accuracy, altitudeAccuracy, heading, speed = null;
+
+    function updatePosition(position) {
+
+    }
+
+    document.addEventListener("DOMContentLoaded", function (e) {
+        console.log("Loaded");
+        latitude = document.getElementById("latitude");
+        longitude = document.getElementById("longitude");
+        altitude = document.getElementById("altitude");
+        accuracy = document.getElementById("accuracy");
+        altitudeAccuracy = document.getElementById("altitudeAccuracy");
+        heading = document.getElementById("heading");
+        speed = document.getElementById("speed");
+
+        let watchId = navigator.geolocation.watchPosition(updatePosition, function (positionError) {
+            alert(positionError);
+        }, {
+            enableHighAccuracy: true,
+            maximumAge: 60000
+        });
+        console.log("Done: "+watchId);
+    });
+
+</script>
+<body>
+<h2>Current Position</h2>
+<div class="container">
+    <div>
+        <div class="label">Latitude</div>
+        <div id="latitude" class="value"></div>
+    </div>
+    <div>
+        <div class="label">Longitude</div>
+        <div id="longitude" class="value"></div>
+    </div>
+    <div>
+        <div class="label">altitude</div>
+        <div id="altitude" class="value"></div>
+    </div>
+    <div>
+        <div class="label">accuracy</div>
+        <div id="accuracy" class="value"></div>
+    </div>
+    <div>
+        <div class="label">altitudeAccuracy</div>
+        <div id="altitudeAccuracy" class="value"></div>
+    </div>
+    <div>
+        <div class="label">heading</div>
+        <div id="heading" class="value"></div>
+    </div>
+    <div>
+        <div class="label">speed</div>
+        <div id="speed" class="value"></div>
+    </div>
+
+</div>
+
+
+</body>
+</html>
