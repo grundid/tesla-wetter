@@ -5,8 +5,8 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="turf.tools.js"></script>
     <title>Tesla Wetter</title>
-</head>
 <style>
     body {
         font-family: sans-serif;
@@ -30,7 +30,10 @@
 
 </style>
 <script>
-    let latitude, longitude, altitude, accuracy, altitudeAccuracy, heading, speed = null;
+    let lastLatitude;
+    let lastLongitude;
+    let latitude, longitude, altitude, accuracy, altitudeAccuracy, heading, speed, distance = null;
+    let totalDistance = 0;
 
     function updatePosition(position) {
         let pos = position.coords;
@@ -41,6 +44,16 @@
         altitudeAccuracy.innerText = pos.altitudeAccuracy ? pos.altitudeAccuracy.toFixed(1) : "-";
         heading.innerText = pos.heading ? pos.heading : "-";
         speed.innerText = pos.speed ? pos.speed.toFixed(2) : "-";
+        
+        if (lastLatitude && lastLongitude) {
+            let lastPoint = turf.helpers.point([lastLatitude, lastLongitude]);
+            let currentPoint = turf.helpers.point([pos.latitude, pos.longitude]);
+
+            totalDistance += turf.distance.default(lastPoint, currentPoint);
+            distance.innerText = totalDistance.toFixed(2);
+        }
+        lastLongitude = pos.longitude;
+        lastLatitude = pos.latitude;
     }
 
     document.addEventListener("DOMContentLoaded", function (e) {
@@ -51,6 +64,7 @@
         altitudeAccuracy = document.getElementById("altitudeAccuracy");
         heading = document.getElementById("heading");
         speed = document.getElementById("speed");
+        distance = document.getElementById("distance");
 
         let watchId = navigator.geolocation.watchPosition(updatePosition, function (positionError) {
             alert(positionError);
@@ -61,6 +75,8 @@
     });
 
 </script>
+</head>
+
 <body>
 <h2>Current Position - GPS</h2>
 <h4>Shows you your current GPS position, altitude, heading and speed from your browser.</h4>
@@ -92,6 +108,10 @@
     <div>
         <div class="label">Speed</div>
         <div id="speed" class="value"></div>
+    </div>
+    <div>
+        <div class="label">Distance KM</div>
+        <div id="distance" class="value"></div>
     </div>
 </div>
 </body>
