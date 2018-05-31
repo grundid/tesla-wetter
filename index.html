@@ -39,10 +39,10 @@
         let pos = position.coords;
         latitude.innerText = pos.latitude ? pos.latitude.toFixed(4) : "-";
         longitude.innerText = pos.longitude ? pos.longitude.toFixed(4) : "-";
-        altitude.innerText = pos.altitude ? pos.altitude : "-";
+        altitude.innerText = pos.altitude ? pos.altitude.toFixed(1) : "-";
         accuracy.innerText = pos.accuracy ? pos.accuracy.toFixed(1) : "-";
         altitudeAccuracy.innerText = pos.altitudeAccuracy ? pos.altitudeAccuracy.toFixed(1) : "-";
-        heading.innerText = pos.heading ? pos.heading : "-";
+        heading.innerText = pos.heading ? pos.heading.toFixed(0) : "-";
         speed.innerText = pos.speed ? pos.speed.toFixed(2) : "-";
         
         if (lastLatitude && lastLongitude) {
