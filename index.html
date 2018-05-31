@@ -43,7 +43,7 @@
         accuracy.innerText = pos.accuracy ? pos.accuracy.toFixed(1) : "-";
         altitudeAccuracy.innerText = pos.altitudeAccuracy ? pos.altitudeAccuracy.toFixed(1) : "-";
         heading.innerText = pos.heading ? pos.heading.toFixed(0) : "-";
-        speed.innerText = pos.speed ? pos.speed.toFixed(2) : "-";
+        speed.innerText = pos.speed ? (pos.speed * 3.6).toFixed(2) : "-";
         
         if (lastLatitude && lastLongitude) {
             let lastPoint = turf.helpers.point([lastLatitude, lastLongitude]);
@@ -106,7 +106,7 @@
         <div id="heading" class="value"></div>
     </div>
     <div>
-        <div class="label">Speed</div>
+        <div class="label">Speed km/h</div>
         <div id="speed" class="value"></div>
     </div>
     <div>
