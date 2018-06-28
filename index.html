@@ -38,6 +38,14 @@
     let errorLogContent = "";
     let minAltValue, maxAltValue = null;
 
+    function setMinMaxAltitude(oldValue, altitude, minMax) {
+        if (oldValue) {
+            return altitude ? minMax(oldValue, altitude) : oldValue;
+        } else {
+            return altitude;
+        }
+    }
+    
     function updatePosition(position) {
         let pos = position.coords;
         latitude.innerText = pos.latitude ? pos.latitude.toFixed(4) : "-";
@@ -48,9 +56,9 @@
         heading.innerText = pos.heading ? pos.heading.toFixed(0) : "-";
         speed.innerText = pos.speed ? (pos.speed * 3.6).toFixed(2) : "-";
 
-        minAltValue = pos.altitude ? Math.min(10000, pos.altitude) : minAltValue;
-        maxAltValue = pos.altitude ? Math.max(0, pos.altitude) : maxAltValue;
-
+        minAltValue = setMinMaxAltitude(minAltValue, pos.altitude, Math.min);
+        maxAltValue = setMinMaxAltitude(maxAltValue, pos.altitude, Math.max);
+        
         minAltitude.innerText = minAltValue ? minAltValue.toFixed(1) : "-";
         maxAltitude.innerText = maxAltValue ? maxAltValue.toFixed(1) : "-";
         
