@@ -32,7 +32,7 @@
 <script>
     let lastLatitude;
     let lastLongitude;
-    let latitude, longitude, altitude, accuracy, altitudeAccuracy, heading, speed, distance = null;
+    let latitude, longitude, altitude, accuracy, altitudeAccuracy, heading, speed, distance, errorLog = null;
     let totalDistance = 0;
     let errorLogContent = "";
 
@@ -56,6 +56,19 @@
         lastLongitude = pos.longitude;
         lastLatitude = pos.latitude;
     }
+    
+    function debugObjects() {
+        let result = "";
+
+        const knownWindowsObjects = Object.keys(window).join(", ");
+
+        result += knownWindowsObjects;
+        
+        errorLog.innerHTML = result;
+        
+        
+        
+    }
 
     document.addEventListener("DOMContentLoaded", function (e) {
         latitude = document.getElementById("latitude");
@@ -76,6 +89,8 @@
             enableHighAccuracy: true,
             maximumAge: 60000
         });
+        
+        debugObjects();
     });
 
 </script>
@@ -119,6 +134,6 @@
     </div>
 </div>
 
-<pre id="errorLog"></pre>
+<div id="errorLog"></div>
 </body>
 </html>
