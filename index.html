@@ -33,8 +33,10 @@
     let lastLatitude;
     let lastLongitude;
     let latitude, longitude, altitude, accuracy, altitudeAccuracy, heading, speed, distance, errorLog = null;
+    let minAltitude, maxAltitude = null;
     let totalDistance = 0;
     let errorLogContent = "";
+    let minAltValue, maxAltValue = null;
 
     function updatePosition(position) {
         let pos = position.coords;
@@ -45,6 +47,12 @@
         altitudeAccuracy.innerText = pos.altitudeAccuracy ? pos.altitudeAccuracy.toFixed(1) : "-";
         heading.innerText = pos.heading ? pos.heading.toFixed(0) : "-";
         speed.innerText = pos.speed ? (pos.speed * 3.6).toFixed(2) : "-";
+
+        minAltValue = pos.altitude ? Math.min(10000, pos.altitude) : minAltValue;
+        maxAltValue = pos.altitude ? Math.max(0, pos.altitude) : maxAltValue;
+
+        minAltitude.innerText = minAltValue ? minAltValue.toFixed(1) : "-";
+        maxAltitude.innerText = maxAltValue ? maxAltValue.toFixed(1) : "-";
         
         if (lastLatitude && lastLongitude) {
             let lastPoint = turf.helpers.point([lastLatitude, lastLongitude]);
@@ -60,13 +68,11 @@
     function debugObjects() {
         let result = "";
 
-        const knownWindowsObjects = Object.keys(window).join(", ");
 
-        result += knownWindowsObjects;
+        
+        result += Object.keys(window).join(", ")+"<hr>"+Object.keys(navigator).join(", ");
         
         errorLog.innerHTML = result;
-        
-        
         
     }
 
@@ -74,6 +80,8 @@
         latitude = document.getElementById("latitude");
         longitude = document.getElementById("longitude");
         altitude = document.getElementById("altitude");
+        minAltitude = document.getElementById("minAltitude");
+        maxAltitude = document.getElementById("maxAltitude");
         accuracy = document.getElementById("accuracy");
         altitudeAccuracy = document.getElementById("altitudeAccuracy");
         heading = document.getElementById("heading");
@@ -132,6 +140,17 @@
         <div class="label">Distance KM</div>
         <div id="distance" class="value"></div>
     </div>
+</div>
+<div class="container">
+    <div>
+        <div class="label">min. Altitude</div>
+        <div id="minAltitude" class="value"></div>
+    </div>
+    <div>
+        <div class="label">max. Altitude</div>
+        <div id="maxAltitude" class="value"></div>
+    </div>
+
 </div>
 
 <div id="errorLog"></div>
