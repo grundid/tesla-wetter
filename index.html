@@ -100,8 +100,10 @@
                 if (currentLatitude != null) {
                     if (currentLatitude > lastAltitudeReference + altDelta) {
                         data.altitudeGained += currentLatitude - lastAltitudeReference;
+                        lastAltitudeReference = currentLatitude;
                     } else if (currentLatitude < lastAltitudeReference - altDelta) {
                         data.altitudeLost += lastAltitudeReference - currentLatitude;
+                        lastAltitudeReference = currentLatitude;
                     }
                     elements["altitudeGained"].innerText = data.altitudeGained ? data.altitudeGained.toFixed(0) : "-";
                     elements["altitudeLost"].innerText = data.altitudeLost ? data.altitudeLost.toFixed(0) : "-";
