@@ -191,6 +191,12 @@
             ctx.moveTo(0, -100);
             ctx.lineTo(0, 100);
             ctx.stroke();
+            ctx.moveTo(0, -100);
+            ctx.lineTo(20, -80);
+            ctx.stroke();
+            ctx.moveTo(0, -100);
+            ctx.lineTo(-20, -80);
+            ctx.stroke();
         }
 
         function initCanvas() {
@@ -213,7 +219,6 @@
                 maximumAge: 60000
             });
             initCanvas();
-            drawCircle();
         });
 
     </script>
