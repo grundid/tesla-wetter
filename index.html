@@ -68,7 +68,7 @@
             altitudeGained: 0,
             altitudeLost: 0
         };
-        
+
         function resetData() {
             totalDistance = 0;
             minAltValue = 0;
@@ -94,64 +94,70 @@
             } else {
                 return null;
             }
-            
+
         }
 
         function updatePosition(position) {
-            let pos = position.coords;
-            elements["latitude"].innerText = pos.latitude ? pos.latitude.toFixed(4) : "-";
-            elements["longitude"].innerText = pos.longitude ? pos.longitude.toFixed(4) : "-";
-            elements["altitude"].innerText = pos.altitude ? pos.altitude.toFixed(1) : "-";
-            elements["accuracy"].innerText = pos.accuracy ? pos.accuracy.toFixed(1) : "-";
-            elements["altitudeAccuracy"].innerText = pos.altitudeAccuracy ? pos.altitudeAccuracy.toFixed(1) : "-";
-            elements["heading"].innerText = pos.heading ? pos.heading.toFixed(0) : "-";
-            elements["speed"].innerText = pos.speed ? (pos.speed * 3.6).toFixed(2) : "-";
+            try {
 
-            minAltValue = setMinMaxAltitude(minAltValue, pos.altitude, Math.min);
-            maxAltValue = setMinMaxAltitude(maxAltValue, pos.altitude, Math.max);
+                let pos = position.coords;
+                elements["latitude"].innerText = pos.latitude ? pos.latitude.toFixed(4) : "-";
+                elements["longitude"].innerText = pos.longitude ? pos.longitude.toFixed(4) : "-";
+                elements["altitude"].innerText = pos.altitude ? pos.altitude.toFixed(1) : "-";
+                elements["accuracy"].innerText = pos.accuracy ? pos.accuracy.toFixed(1) : "-";
+                elements["altitudeAccuracy"].innerText = pos.altitudeAccuracy ? pos.altitudeAccuracy.toFixed(1) : "-";
+                elements["heading"].innerText = pos.heading ? pos.heading.toFixed(0) : "-";
+                elements["speed"].innerText = pos.speed ? (pos.speed * 3.6).toFixed(2) : "-";
 
-            elements["minAltitude"].innerText = minAltValue ? minAltValue.toFixed(1) : "-";
-            elements["maxAltitude"].innerText = maxAltValue ? maxAltValue.toFixed(1) : "-";
+                minAltValue = setMinMaxAltitude(minAltValue, pos.altitude, Math.min);
+                maxAltValue = setMinMaxAltitude(maxAltValue, pos.altitude, Math.max);
 
-            if (lastLatitude && lastLongitude) {
-                let lastPoint = point([lastLongitude, lastLatitude]);
-                let currentPoint = point([pos.longitude, pos.latitude]);
+                elements["minAltitude"].innerText = minAltValue ? minAltValue.toFixed(1) : "-";
+                elements["maxAltitude"].innerText = maxAltValue ? maxAltValue.toFixed(1) : "-";
 
-                totalDistance += turfDistance(lastPoint, currentPoint);
-                elements["distance"].innerText = totalDistance.toFixed(2);
-            }
-            if (lastAltitudeReference != null) {
-                const currentLatitude = pos.altitude;
-                if (currentLatitude != null) {
-                    if (currentLatitude > lastAltitudeReference + altDelta) {
-                        data.altitudeGained += currentLatitude - lastAltitudeReference;
-                        lastAltitudeReference = currentLatitude;
-                    } else if (currentLatitude < lastAltitudeReference - altDelta) {
-                        data.altitudeLost += lastAltitudeReference - currentLatitude;
-                        lastAltitudeReference = currentLatitude;
+                if (lastLatitude && lastLongitude) {
+                    let lastPoint = point([lastLongitude, lastLatitude]);
+                    let currentPoint = point([pos.longitude, pos.latitude]);
+
+                    totalDistance += turfDistance(lastPoint, currentPoint);
+                    elements["distance"].innerText = totalDistance.toFixed(2);
+                }
+                if (lastAltitudeReference != null) {
+                    const currentLatitude = pos.altitude;
+                    if (currentLatitude != null) {
+                        if (currentLatitude > lastAltitudeReference + altDelta) {
+                            data.altitudeGained += currentLatitude - lastAltitudeReference;
+                            lastAltitudeReference = currentLatitude;
+                        } else if (currentLatitude < lastAltitudeReference - altDelta) {
+                            data.altitudeLost += lastAltitudeReference - currentLatitude;
+                            lastAltitudeReference = currentLatitude;
+                        }
+                        elements["altitudeGained"].innerText = data.altitudeGained ? data.altitudeGained.toFixed(0) : "-";
+                        elements["altitudeLost"].innerText = data.altitudeLost ? data.altitudeLost.toFixed(0) : "-";
                     }
-                    elements["altitudeGained"].innerText = data.altitudeGained ? data.altitudeGained.toFixed(0) : "-";
-                    elements["altitudeLost"].innerText = data.altitudeLost ? data.altitudeLost.toFixed(0) : "-";
+                } else {
+                    lastAltitudeReference = pos.altitude;
                 }
-            } else {
-                lastAltitudeReference = pos.altitude;
+                lastLongitude = pos.longitude;
+                lastLatitude = pos.latitude;
+
+                const posAlt = createPosAltitude(pos);
+                if (posAlt) {
+                    if (lastAltitudePoint) {
+                        const distance = turfDistance(point([posAlt.longitude, posAlt.latitude]),
+                            point([lastAltitudePoint.longitude, lastAltitudePoint.latitude])) * 1000;
+                        const heightDifference = posAlt.altitude - lastAltitudePoint.altitude;
+
+                        const diff = (distance !== 0 ? heightDifference / distance : 0) * 100;
+
+                        elements["incline"].innerText = diff.toFixed(1) + "%";
+
+                    }
+                    lastAltitudePoint = posAlt;
+                }
             }
-            lastLongitude = pos.longitude;
-            lastLatitude = pos.latitude;
-
-            const posAlt = createPosAltitude(pos);
-            if (posAlt) {
-                if (lastAltitudePoint) {
-                    const distance = turfDistance(point([posAlt.longitude, posAlt.latitude]),
-                        point([lastAltitudePoint.longitude, lastAltitudePoint.latitude])) * 1000;
-                    const heightDifference = posAlt.altitude - lastAltitudePoint.altitude;
-
-                    const diff = (distance !== 0 ? heightDifference / distance : 0) * 100;
-
-                    elements["incline"].innerText = diff.toFixed(1) + "%";
-
-                }
-                lastAltitudePoint = posAlt;
+            catch (e) {
+                elements["errorLog"].innerHTML = e;
             }
         }
 
@@ -177,7 +183,7 @@
 
             //debugObjects();
         });
-        
+
         function canvasTest() {
             var c = document.getElementById("myCanvas");
             var ctx = c.getContext("2d");
