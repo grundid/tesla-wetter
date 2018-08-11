@@ -54,7 +54,7 @@
         const point = turf.helpers.point;
         const turfDistance = turf.distance.default;
 
-        let lastAltitudePoint = null;
+        let lastAltitudePoint = {latitude: 49.27, longitude: 8.64, altitude: 150};
 
         let lastLatitude;
         let lastLongitude;
@@ -79,6 +79,8 @@
         }
 
         function createPosAltitude(pos) {
+            //return {latitude: 49.26, longitude: 8.64, altitude: 250};
+
             if (pos.latitude && pos.longitude && pos.altitude) {
                 return {latitude: pos.latitude, longitude: pos.longitude, altitude: pos.altitude};
             } else {
@@ -135,7 +137,7 @@
                         point([lastAltitudePoint.longitude, lastAltitudePoint.latitude])) * 1000;
                     const heightDifference = posAlt.altitude - lastAltitudePoint.altitude;
 
-                    const diff = heightDifference / distance;
+                    const diff = distance !== 0 ? heightDifference / distance : 0;
 
                     elements["incline"].innerText = diff.toFixed(1) + "%";
 
