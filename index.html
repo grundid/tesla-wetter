@@ -48,8 +48,13 @@
     <script>
         const elementNames = ["latitude", "longitude",
             "altitude", "minAltitude", "maxAltitude", "accuracy",
-            "altitudeAccuracy", "heading", "speed", "distance", "errorLog", "altitudeGained", "altitudeLost"];
+            "altitudeAccuracy", "heading", "speed", "distance", "errorLog", "altitudeGained", "altitudeLost", "incline"];
         const elements = {};
+
+        const point = turf.helpers.point;
+        const turfDistance = turf.distance.default;
+
+        let lastAltitudePoint = null;
 
         let lastLatitude;
         let lastLongitude;
@@ -64,11 +69,20 @@
             altitudeLost: 0
         };
 
+
         function setMinMaxAltitude(oldValue, altitude, minMax) {
             if (oldValue) {
                 return altitude ? minMax(oldValue, altitude) : oldValue;
             } else {
                 return altitude;
+            }
+        }
+
+        function createPosAltitude(pos) {
+            if (pos.latitude && pos.longitude && pos.altitude) {
+                return {latitude: pos.latitude, longitude: pos.longitude, altitude: pos.altitude};
+            } else {
+                return null;
             }
         }
 
@@ -89,10 +103,10 @@
             elements["maxAltitude"].innerText = maxAltValue ? maxAltValue.toFixed(1) : "-";
 
             if (lastLatitude && lastLongitude) {
-                let lastPoint = turf.helpers.point([lastLatitude, lastLongitude]);
-                let currentPoint = turf.helpers.point([pos.latitude, pos.longitude]);
+                let lastPoint = point([lastLongitude, lastLatitude]);
+                let currentPoint = point([pos.longitude, pos.latitude]);
 
-                totalDistance += turf.distance.default(lastPoint, currentPoint);
+                totalDistance += turfDistance(lastPoint, currentPoint);
                 elements["distance"].innerText = totalDistance.toFixed(2);
             }
             if (lastAltitudeReference != null) {
@@ -113,6 +127,21 @@
             }
             lastLongitude = pos.longitude;
             lastLatitude = pos.latitude;
+
+            const posAlt = createPosAltitude(pos);
+            if (posAlt) {
+                if (lastAltitudePoint) {
+                    const distance = turfDistance(point([posAlt.longitude, posAlt.latitude]),
+                        point([lastAltitudePoint.longitude, lastAltitudePoint.latitude])) * 1000;
+                    const heightDifference = posAlt.altitude - lastAltitudePoint.altitude;
+
+                    const diff = heightDifference / distance;
+
+                    elements["incline"].innerText = diff.toFixed(1) + "%";
+
+                }
+                lastAltitudePoint = posAlt;
+            }
         }
 
         function debugObjects() {
@@ -194,6 +223,10 @@
     <div>
         <div class="label">Altitude lost</div>
         <div id="altitudeLost" class="value"></div>
+    </div>
+    <div>
+        <div class="label">Incline</div>
+        <div id="incline" class="value"></div>
     </div>
 
 </div>
