@@ -213,7 +213,6 @@
             let watchId = navigator.geolocation.watchPosition(updatePosition, function (positionError) {
                 errorLogContent += positionError + "\n";
                 elements["errorLog"].innerText = errorLogContent;
-                alert(positionError);
             }, {
                 enableHighAccuracy: true,
                 maximumAge: 60000
@@ -225,7 +224,6 @@
 </head>
 
 <body>
-<h2>Current Position - GPS</h2>
 <h4>Shows you your current GPS position, altitude, heading and speed from your browser.</h4>
 <div class="container">
     <div>
