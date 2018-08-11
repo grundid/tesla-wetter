@@ -177,6 +177,14 @@
 
             //debugObjects();
         });
+        
+        function canvasTest() {
+            var c = document.getElementById("myCanvas");
+            var ctx = c.getContext("2d");
+            ctx.moveTo(0, 0);
+            ctx.lineTo(200, 100);
+            ctx.stroke();
+        }
 
     </script>
 </head>
@@ -243,8 +251,14 @@
 </div>
 
 <div>
+    <canvas id="myCanvas" width="200" height="100" style="border:1px solid #000000;">
+    </canvas>
+</div>
+
+<div>
     <button onclick="debugObjects();">Show Objects</button>
     <button onclick="resetData();">Reset data</button>
+    <button onclick="canvasTest();">Canvas Test</button>
 
 </div>
 
