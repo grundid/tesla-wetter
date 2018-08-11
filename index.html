@@ -113,9 +113,7 @@
                     elements["heading"].innerText = pos.heading ? pos.heading.toFixed(0) : "-";
                     elements["speed"].innerText = pos.speed ? (pos.speed * 3.6).toFixed(2) : "-";
 
-                    if (pos.heading) {
-                        updatePosition(pos.heading);
-                    }
+                    updatePosition(pos.heading);
                     minAltValue = setMinMaxAltitude(minAltValue, pos.altitude, Math.min);
                     maxAltValue = setMinMaxAltitude(maxAltValue, pos.altitude, Math.max);
 
@@ -178,7 +176,7 @@
         function rotateDirection(degrees) {
             ctx.clearRect(-200, -200, 400, 400);
             ctx.save();
-            elements["errorLog"].innerHTML = "rotate with: "+degrees;
+            elements["errorLog"].innerHTML = "rotate with: " + degrees;
             ctx.rotate((Math.PI / 180) * degrees);
             drawCircle();
             ctx.restore();
