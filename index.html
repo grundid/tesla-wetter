@@ -68,6 +68,14 @@
             altitudeGained: 0,
             altitudeLost: 0
         };
+        
+        function resetData() {
+            totalDistance = 0;
+            minAltValue = 0;
+            maxAltValue = 0;
+            data.altitudeGained = 0;
+            data.altitudeLost = 0;
+        }
 
 
         function setMinMaxAltitude(oldValue, altitude, minMax) {
@@ -231,6 +239,12 @@
         <div class="label">Incline</div>
         <div id="incline" class="value"></div>
     </div>
+
+</div>
+
+<div>
+    <button onclick="debugObjects();">Show Objects</button>
+    <button onclick="resetData();">Reset data</button>
 
 </div>
 
