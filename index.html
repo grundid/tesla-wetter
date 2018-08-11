@@ -86,6 +86,7 @@
             } else {
                 return null;
             }
+            
         }
 
         function updatePosition(position) {
@@ -137,7 +138,7 @@
                         point([lastAltitudePoint.longitude, lastAltitudePoint.latitude])) * 1000;
                     const heightDifference = posAlt.altitude - lastAltitudePoint.altitude;
 
-                    const diff = distance !== 0 ? heightDifference / distance : 0;
+                    const diff = (distance !== 0 ? heightDifference / distance : 0) * 100;
 
                     elements["incline"].innerText = diff.toFixed(1) + "%";
 
