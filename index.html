@@ -177,8 +177,11 @@
 
         function rotateDirection(degrees) {
             ctx.clearRect(-200, -200, 400, 400);
+            ctx.save();
+            elements["errorLog"].innerHTML = "rotate with: "+degrees;
             ctx.rotate((Math.PI / 180) * degrees);
             drawCircle();
+            ctx.restore();
         }
 
         function drawCircle() {
