@@ -55,6 +55,8 @@
         const point = turf.helpers.point;
         const turfDistance = turf.distance.default;
 
+        let posDetails = 4;
+        
         let ctx = null;
         let lastAltitudePoint = {latitude: 49.27, longitude: 8.64, altitude: 150};
 
@@ -105,8 +107,8 @@
                 let pos = position.coords;
                 if (pos) {
 
-                    elements["latitude"].innerText = pos.latitude ? pos.latitude.toFixed(4) : "-";
-                    elements["longitude"].innerText = pos.longitude ? pos.longitude.toFixed(4) : "-";
+                    elements["latitude"].innerText = pos.latitude ? pos.latitude.toFixed(posDetails) : "-";
+                    elements["longitude"].innerText = pos.longitude ? pos.longitude.toFixed(posDetails) : "-";
                     elements["altitude"].innerText = pos.altitude ? pos.altitude.toFixed(1) : "-";
                     elements["accuracy"].innerText = pos.accuracy ? pos.accuracy.toFixed(1) : "-";
                     elements["altitudeAccuracy"].innerText = pos.altitudeAccuracy ? pos.altitudeAccuracy.toFixed(1) : "-";
@@ -204,6 +206,14 @@
             ctx = canvas.getContext("2d");
             ctx.translate(100, 100);
         }
+        
+        function toggleDetails() {
+            if (posDetails === 4) {
+                posDetails = 8;
+            } else {
+                posDetails = 4;
+            }
+        }
 
         document.addEventListener("DOMContentLoaded", function (e) {
             for (let name of elementNames) {
@@ -284,7 +294,7 @@
 </div>
 
 <div>
-    <canvas id="directionCanvas" width="200" height="200" style="border:1px solid #000000;">
+    <canvas id="directionCanvas" width="200" height="200">
     </canvas>
 </div>
 
@@ -292,7 +302,8 @@
     <button onclick="debugObjects();">Show Objects</button>
     <button onclick="resetData();">Reset data</button>
     <button onclick="rotateDirection(90);">Canvas Test</button>
-
+    <button onclick="toggleDetails();">Toggle Details</button>
+    
 </div>
 
 <div id="errorLog"></div>
