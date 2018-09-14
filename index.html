@@ -49,14 +49,16 @@
         const elementNames = ["latitude", "longitude",
             "altitude", "minAltitude", "maxAltitude", "accuracy",
             "altitudeAccuracy", "heading", "speed", "distance", "errorLog",
-            "altitudeGained", "altitudeLost", "incline", "directionCanvas"];
+            "altitudeGained", "altitudeLost", "incline", "directionCanvas", "heightCanvas"];
         const elements = {};
 
         const point = turf.helpers.point;
         const turfDistance = turf.distance.default;
 
+        const altHistory = [];
+
         let posDetails = 8;
-        
+
         let ctx = null;
         let lastAltitudePoint = {latitude: 49.27, longitude: 8.64, altitude: 150};
 
@@ -161,6 +163,8 @@
 
                             elements["incline"].innerText = diff.toFixed(1) + "%";
 
+                            addAltitudePoint(distance, posAlt.altitude);
+
                         }
                         lastAltitudePoint = posAlt;
                     }
@@ -180,7 +184,7 @@
         function rotateDirection(degrees) {
             ctx.clearRect(-200, -200, 400, 400);
             ctx.save();
-            elements["errorLog"].innerHTML = "rotate with: "+degrees;
+            elements["errorLog"].innerHTML = "rotate with: " + degrees;
             ctx.rotate((Math.PI / 180) * degrees);
             drawCircle();
             ctx.restore();
@@ -206,12 +210,66 @@
             ctx = canvas.getContext("2d");
             ctx.translate(100, 100);
         }
-        
+
         function toggleDetails() {
             if (posDetails === 4) {
                 posDetails = 8;
             } else {
                 posDetails = 4;
+            }
+        }
+
+        function drawAltHistory() {
+            const altCtx = elements["heightCanvas"].getContext("2d");
+            altCtx.clearRect(0, 0, 200, 200);
+
+            const dataStats = {
+                minDist: Number.MAX_SAFE_INTEGER, maxDist: Number.MIN_SAFE_INTEGER,
+                minAltitude: Number.MAX_SAFE_INTEGER, maxAltitude: Number.MIN_SAFE_INTEGER
+            };
+
+            altHistory.forEach((dataPoint) => {
+                dataStats.minDist = Math.min(dataStats.minDist, dataPoint.distance);
+                dataStats.maxDist = Math.max(dataStats.maxDist, dataPoint.distance);
+                dataStats.minAltitude = Math.min(dataStats.minAltitude, dataPoint.altitude);
+                dataStats.maxAltitude = Math.max(dataStats.maxAltitude, dataPoint.altitude);
+            });
+
+            if (altHistory.length > 1) {
+                let dataPoint = altHistory[0];
+
+                function posX(x) {
+                    return (x - dataStats.minDist) * (200 / dataStats.maxDist);
+                }
+
+                function posY(y) {
+                    return 200 - ((y - dataStats.minAltitude) * (200 / dataStats.maxAltitude));
+                }
+
+                altCtx.beginPath();
+                altCtx.moveTo(posX(dataPoint.distance), posY(dataPoint.altitude));
+                for (let x = 1; x < altHistory.length; x++) {
+                    dataPoint = altHistory[x];
+                    altCtx.lineTo(posX(dataPoint.distance), posY(dataPoint.altitude));
+                    altCtx.stroke();
+                }
+            }
+        }
+
+        function addAltitudePoint(distance, altitude) {
+            altHistory.push({distance: distance, altitude: altitude});
+
+            let distanceHistory = 0;
+            let cutPosition = 0;
+            for (let x = altHistory.length - 1; x >= 0; x--) {
+                distanceHistory += altHistory[x].distance;
+                if (distanceHistory > 10) {
+                    cutPosition = x;
+                    break;
+                }
+            }
+            if (cutPosition > 0) {
+                altHistory.splice(0, cutPosition);
             }
         }
 
@@ -228,6 +286,7 @@
                 maximumAge: 60000
             });
             initCanvas();
+            drawAltHistory();
         });
 
     </script>
@@ -296,6 +355,8 @@
 <div>
     <canvas id="directionCanvas" width="200" height="200">
     </canvas>
+    <canvas id="heightCanvas" width="200" height="200">
+    </canvas>
 </div>
 
 <div>
@@ -303,7 +364,7 @@
     <button onclick="resetData();">Reset data</button>
     <button onclick="rotateDirection(90);">Canvas Test</button>
     <button onclick="toggleDetails();">Toggle Details</button>
-    
+
 </div>
 
 <div id="errorLog"></div>
