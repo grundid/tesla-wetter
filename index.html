@@ -379,6 +379,7 @@
             totalDistance = 0;
             minAltValue = 0;
             maxAltValue = 0;
+            altHistory = [];
             data.altitudeGained = 0;
             data.altitudeLost = 0;
         }
@@ -486,6 +487,10 @@
             elements["errorLog"].innerHTML = result;
         }
 
+        function performanceAvailable() {
+            elements["errorLog"].innerHTML ='window.performance ' + window.hasOwnProperty('performance') ? 'verfügbar' : 'nicht verfügbar';
+        }
+
         function rotateDirection(degrees) {
             ctx.clearRect(-200, -200, 400, 400);
             ctx.save();
@@ -584,7 +589,7 @@
                 let cutPosition = 0;
                 for (let x = altHistory.length - 1; x >= 0; x--) {
                     console.log(lastDistance - altHistory[x].distance);
-                    if (lastDistance - altHistory[x].distance > 10000) {
+                    if (lastDistance - altHistory[x].distance > 5000) {
                         cutPosition = x;
                         break;
                     }
@@ -616,7 +621,7 @@
             initCanvas();
             drawAltHistory();
 
-            /*setInterval(() => {
+            setInterval(() => {
                 if (knownIndex < knownData.length - 1) {
                     const position = {
                         coords: {
@@ -629,7 +634,7 @@
                     updatePosition(position);
                     knownIndex++;
                 }
-            }, 1000);*/
+            }, 1000);
         });
     </script>
 </head>
@@ -703,6 +708,7 @@
 
     <div>
         <button onclick="debugObjects();">Show Objects</button>
+        <button onclick="performanceAvailable();">Show Performance Object</button>
         <button onclick="resetData();">Reset data</button>
         <button onclick="rotateDirection(90);">Canvas Test</button>
         <button onclick="toggleDetails();">Toggle Details</button>
