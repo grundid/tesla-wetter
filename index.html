@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="turf.tools.js"></script>
     <title>Tesla Wetter</title>
@@ -43,10 +43,8 @@
             }
 
         }
-
     </style>
     <script>
-
         const knownData = [
 
             [
@@ -344,12 +342,14 @@
             [
                 9.193555,
                 49.280102
-            ]];
+            ]
+        ];
         let knownIndex = 0;
         const elementNames = ["latitude", "longitude",
             "altitude", "minAltitude", "maxAltitude", "accuracy",
             "altitudeAccuracy", "heading", "speed", "distance", "errorLog",
-            "altitudeGained", "altitudeLost", "incline", "directionCanvas", "heightCanvas"];
+            "altitudeGained", "altitudeLost", "incline", "directionCanvas", "heightCanvas"
+        ];
         const elements = {};
 
         const point = turf.helpers.point;
@@ -396,7 +396,11 @@
             //return {latitude: 49.26, longitude: 8.64, altitude: 250};
 
             if (pos.latitude && pos.longitude && pos.altitude) {
-                return {latitude: pos.latitude, longitude: pos.longitude, altitude: pos.altitude};
+                return {
+                    latitude: pos.latitude,
+                    longitude: pos.longitude,
+                    altitude: pos.altitude
+                };
             } else {
                 return null;
             }
@@ -413,7 +417,8 @@
                     elements["longitude"].innerText = pos.longitude ? pos.longitude.toFixed(posDetails) : "-";
                     elements["altitude"].innerText = pos.altitude ? pos.altitude.toFixed(1) : "-";
                     elements["accuracy"].innerText = pos.accuracy ? pos.accuracy.toFixed(1) : "-";
-                    elements["altitudeAccuracy"].innerText = pos.altitudeAccuracy ? pos.altitudeAccuracy.toFixed(1) : "-";
+                    elements["altitudeAccuracy"].innerText = pos.altitudeAccuracy ? pos.altitudeAccuracy.toFixed(1) :
+                        "-";
                     elements["heading"].innerText = pos.heading ? pos.heading.toFixed(0) : "-";
                     elements["speed"].innerText = pos.speed ? (pos.speed * 3.6).toFixed(2) : "-";
 
@@ -443,7 +448,8 @@
                                 data.altitudeLost += lastAltitudeReference - currentLatitude;
                                 lastAltitudeReference = currentLatitude;
                             }
-                            elements["altitudeGained"].innerText = data.altitudeGained ? data.altitudeGained.toFixed(0) : "-";
+                            elements["altitudeGained"].innerText = data.altitudeGained ? data.altitudeGained.toFixed(0) :
+                                "-";
                             elements["altitudeLost"].innerText = data.altitudeLost ? data.altitudeLost.toFixed(0) : "-";
                         }
                     } else {
@@ -469,8 +475,7 @@
                         lastAltitudePoint = posAlt;
                     }
                 }
-            }
-            catch (e) {
+            } catch (e) {
                 elements["errorLog"].innerHTML = e;
             }
         }
@@ -524,8 +529,10 @@
             altCtx.clearRect(0, 0, 200, 200);
 
             const dataStats = {
-                minDist: Number.MAX_SAFE_INTEGER, maxDist: Number.MIN_SAFE_INTEGER,
-                minAltitude: Number.MAX_SAFE_INTEGER, maxAltitude: Number.MIN_SAFE_INTEGER
+                minDist: Number.MAX_SAFE_INTEGER,
+                maxDist: Number.MIN_SAFE_INTEGER,
+                minAltitude: Number.MAX_SAFE_INTEGER,
+                maxAltitude: Number.MIN_SAFE_INTEGER
             };
 
             altHistory.forEach((dataPoint) => {
@@ -558,27 +565,33 @@
 
         function addAltitudePoint(distance, altitude) {
             if (altHistory.length > 0) {
-                altHistory.push({distance: altHistory[altHistory.length - 1].distance + distance, altitude: altitude});
+                altHistory.push({
+                    distance: altHistory[altHistory.length - 1].distance + distance,
+                    altitude: altitude
+                });
             } else {
-                altHistory.push({distance: 0, altitude: altitude});
+                altHistory.push({
+                    distance: 0,
+                    altitude: altitude
+                });
             }
-
-            if (altHistory.length > 2) {
-                const lastDistance = altHistory[altHistory.length - 1].distance;
-                let cutPosition = 0;
-                for (let x = altHistory.length - 1; x >= 0; x--) {
-                    if (lastDistance - altHistory[x].distance > 10000) {
-                        cutPosition = x;
-                        break;
-                    }
-                }
-                if (cutPosition > 0) {
-                    console.log(altHistory);
-                    console.log("cutPosition: ", cutPosition);
-                    altHistory.splice(0, cutPosition);
-                    console.log(altHistory);
-                }
-            }
+            /*
+                        if (altHistory.length > 2) {
+                            const lastDistance = altHistory[altHistory.length - 1].distance;
+                            let cutPosition = 0;
+                            for (let x = altHistory.length - 1; x >= 0; x--) {
+                                if (lastDistance - altHistory[x].distance > 10000) {
+                                    cutPosition = x;
+                                    break;
+                                }
+                            }
+                            if (cutPosition > 0) {
+                                console.log(altHistory);
+                                console.log("cutPosition: ", cutPosition);
+                                altHistory.splice(0, cutPosition);
+                                console.log(altHistory);
+                            }
+                        }*/
 
             drawAltHistory();
         }
@@ -595,104 +608,104 @@
                 enableHighAccuracy: true,
                 maximumAge: 60000
             });
-            
+
             initCanvas();
             drawAltHistory();
 
-           /* setInterval(() => {
-                if (knownIndex < knownData.length - 1) {
-                    const position = {
-                        coords: {
-                            altitude: Math.random() * 200,
-                            longitude: knownData[knownIndex][0],
-                            latitude: knownData[knownIndex][1]
-                        }
+            /* setInterval(() => {
+                 if (knownIndex < knownData.length - 1) {
+                     const position = {
+                         coords: {
+                             altitude: Math.random() * 200,
+                             longitude: knownData[knownIndex][0],
+                             latitude: knownData[knownIndex][1]
+                         }
 
-                    };
-                    updatePosition(position);
-                    knownIndex++;
-                }
-            }, 1000);*/
+                     };
+                     updatePosition(position);
+                     knownIndex++;
+                 }
+             }, 1000);*/
         });
-
     </script>
 </head>
 
 <body>
-<h4>Shows you your current GPS position, altitude, heading and speed from your browser.</h4>
-<div class="container">
-    <div>
-        <div class="label">Latitude</div>
-        <div id="latitude" class="value"></div>
+    <h4>Shows you your current GPS position, altitude, heading and speed from your browser.</h4>
+    <div class="container">
+        <div>
+            <div class="label">Latitude</div>
+            <div id="latitude" class="value"></div>
+        </div>
+        <div>
+            <div class="label">Longitude</div>
+            <div id="longitude" class="value"></div>
+        </div>
+        <div>
+            <div class="label">Altitude</div>
+            <div id="altitude" class="value"></div>
+        </div>
+        <div>
+            <div class="label">Accuracy</div>
+            <div id="accuracy" class="value"></div>
+        </div>
+        <div>
+            <div class="label">Altitude Accuracy</div>
+            <div id="altitudeAccuracy" class="value"></div>
+        </div>
+        <div>
+            <div class="label">Heading</div>
+            <div id="heading" class="value"></div>
+        </div>
+        <div>
+            <div class="label">Speed km/h</div>
+            <div id="speed" class="value"></div>
+        </div>
+        <div>
+            <div class="label">Distance KM</div>
+            <div id="distance" class="value"></div>
+        </div>
     </div>
-    <div>
-        <div class="label">Longitude</div>
-        <div id="longitude" class="value"></div>
-    </div>
-    <div>
-        <div class="label">Altitude</div>
-        <div id="altitude" class="value"></div>
-    </div>
-    <div>
-        <div class="label">Accuracy</div>
-        <div id="accuracy" class="value"></div>
-    </div>
-    <div>
-        <div class="label">Altitude Accuracy</div>
-        <div id="altitudeAccuracy" class="value"></div>
-    </div>
-    <div>
-        <div class="label">Heading</div>
-        <div id="heading" class="value"></div>
-    </div>
-    <div>
-        <div class="label">Speed km/h</div>
-        <div id="speed" class="value"></div>
-    </div>
-    <div>
-        <div class="label">Distance KM</div>
-        <div id="distance" class="value"></div>
-    </div>
-</div>
-<div class="container">
-    <div>
-        <div class="label">min. Altitude</div>
-        <div id="minAltitude" class="value"></div>
-    </div>
-    <div>
-        <div class="label">max. Altitude</div>
-        <div id="maxAltitude" class="value"></div>
-    </div>
-    <div>
-        <div class="label">Altitude gained</div>
-        <div id="altitudeGained" class="value"></div>
-    </div>
-    <div>
-        <div class="label">Altitude lost</div>
-        <div id="altitudeLost" class="value"></div>
-    </div>
-    <div>
-        <div class="label">Incline</div>
-        <div id="incline" class="value"></div>
+    <div class="container">
+        <div>
+            <div class="label">min. Altitude</div>
+            <div id="minAltitude" class="value"></div>
+        </div>
+        <div>
+            <div class="label">max. Altitude</div>
+            <div id="maxAltitude" class="value"></div>
+        </div>
+        <div>
+            <div class="label">Altitude gained</div>
+            <div id="altitudeGained" class="value"></div>
+        </div>
+        <div>
+            <div class="label">Altitude lost</div>
+            <div id="altitudeLost" class="value"></div>
+        </div>
+        <div>
+            <div class="label">Incline</div>
+            <div id="incline" class="value"></div>
+        </div>
+
     </div>
 
-</div>
+    <div>
+        <canvas id="directionCanvas" width="200" height="200">
+        </canvas>
+        <canvas id="heightCanvas" width="200" height="200">
+        </canvas>
+    </div>
 
-<div>
-    <canvas id="directionCanvas" width="200" height="200">
-    </canvas>
-    <canvas id="heightCanvas" width="200" height="200">
-    </canvas>
-</div>
+    <div>
+        <button onclick="debugObjects();">Show Objects</button>
+        <button onclick="resetData();">Reset data</button>
+        <button onclick="rotateDirection(90);">Canvas Test</button>
+        <button onclick="toggleDetails();">Toggle Details</button>
 
-<div>
-    <button onclick="debugObjects();">Show Objects</button>
-    <button onclick="resetData();">Reset data</button>
-    <button onclick="rotateDirection(90);">Canvas Test</button>
-    <button onclick="toggleDetails();">Toggle Details</button>
+    </div>
 
-</div>
-
-<div id="errorLog"></div>
+    <div id="errorLog"></div>
 </body>
+
 </html>
