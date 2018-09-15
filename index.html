@@ -46,6 +46,306 @@
 
     </style>
     <script>
+
+        const knownData = [
+
+            [
+                9.16632,
+                49.279957
+            ],
+            [
+                9.166415,
+                49.280147
+            ],
+            [
+                9.166528,
+                49.280417
+            ],
+            [
+                9.166668,
+                49.28064
+            ],
+            [
+                9.16668,
+                49.280658
+            ],
+            [
+                9.166692,
+                49.280675
+            ],
+            [
+                9.166605,
+                49.280759
+            ],
+            [
+                9.166551,
+                49.280788
+            ],
+            [
+                9.165992,
+                49.281076
+            ],
+            [
+                9.165494,
+                49.281326
+            ],
+            [
+                9.164806,
+                49.281694
+            ],
+            [
+                9.164106,
+                49.282006
+            ],
+            [
+                9.163451,
+                49.282348
+            ],
+            [
+                9.162635,
+                49.282797
+            ],
+            [
+                9.161894,
+                49.283182
+            ],
+            [
+                9.161072,
+                49.283642
+            ],
+            [
+                9.16044,
+                49.284004
+            ],
+            [
+                9.15979,
+                49.284294
+            ],
+            [
+                9.159702,
+                49.284324
+            ],
+            [
+                9.159494,
+                49.284532
+            ],
+            [
+                9.159416,
+                49.284638
+            ],
+            [
+                9.159128,
+                49.284898
+            ],
+            [
+                9.159041,
+                49.284975
+            ],
+            [
+                9.158835,
+                49.285147
+            ],
+            [
+                9.158816,
+                49.285185
+            ],
+            [
+                9.158786,
+                49.285258
+            ],
+            [
+                9.158764,
+                49.28553
+            ],
+            [
+                9.158754,
+                49.285576
+            ],
+            [
+                9.158752,
+                49.285659
+            ],
+            [
+                9.158763,
+                49.285714
+            ],
+            [
+                9.171991,
+                49.28892
+            ],
+            [
+                9.172915,
+                49.288718
+            ],
+            [
+                9.174036,
+                49.288478
+            ],
+            [
+                9.174835,
+                49.288274
+            ],
+            [
+                9.175622,
+                49.288018
+            ],
+            [
+                9.176362,
+                49.28769
+            ],
+            [
+                9.177292,
+                49.287256
+            ],
+            [
+                9.178174,
+                49.286839
+            ],
+            [
+                9.179278,
+                49.286321
+            ],
+            [
+                9.180304,
+                49.28585
+            ],
+            [
+                9.181079,
+                49.285557
+            ],
+            [
+                9.182184,
+                49.285223
+            ],
+            [
+                9.183078,
+                49.284966
+            ],
+            [
+                9.183848,
+                49.284732
+            ],
+            [
+                9.184731,
+                49.284413
+            ],
+            [
+                9.186036,
+                49.283938
+            ],
+            [
+                9.186768,
+                49.283678
+            ],
+            [
+                9.187204,
+                49.283532
+            ],
+            [
+                9.187368,
+                49.283445
+            ],
+            [
+                9.187542,
+                49.283316
+            ],
+            [
+                9.187589,
+                49.283174
+            ],
+            [
+                9.18753,
+                49.282909
+            ],
+            [
+                9.187425,
+                49.282609
+            ],
+            [
+                9.187452,
+                49.28232
+            ],
+            [
+                9.187662,
+                49.282087
+            ],
+            [
+                9.187931,
+                49.282006
+            ],
+            [
+                9.188063,
+                49.281994
+            ],
+            [
+                9.18863,
+                49.281973
+            ],
+            [
+                9.188848,
+                49.281932
+            ],
+            [
+                9.189278,
+                49.281701
+            ],
+            [
+                9.189621,
+                49.281407
+            ],
+            [
+                9.190214,
+                49.280884
+            ],
+            [
+                9.190698,
+                49.28046
+            ],
+            [
+                9.191216,
+                49.280066
+            ],
+            [
+                9.191925,
+                49.279657
+            ],
+            [
+                9.192084,
+                49.279549
+            ],
+            [
+                9.192434,
+                49.279435
+            ],
+            [
+                9.192514,
+                49.279433
+            ],
+            [
+                9.19267,
+                49.279498
+            ],
+            [
+                9.192691,
+                49.279537
+            ],
+            [
+                9.192902,
+                49.279783
+            ],
+            [
+                9.193151,
+                49.279924
+            ],
+            [
+                9.19338,
+                49.28003
+            ],
+            [
+                9.193555,
+                49.280102
+            ]];
+        let knownIndex = 0;
         const elementNames = ["latitude", "longitude",
             "altitude", "minAltitude", "maxAltitude", "accuracy",
             "altitudeAccuracy", "heading", "speed", "distance", "errorLog",
@@ -60,7 +360,7 @@
         let posDetails = 8;
 
         let ctx = null;
-        let lastAltitudePoint = {latitude: 49.27, longitude: 8.64, altitude: 150};
+        let lastAltitudePoint = null; // {latitude: 49.27, longitude: 8.64, altitude: 150};
 
         let lastLatitude;
         let lastLongitude;
@@ -257,20 +557,30 @@
         }
 
         function addAltitudePoint(distance, altitude) {
-            altHistory.push({distance: distance, altitude: altitude});
+            if (altHistory.length > 0) {
+                altHistory.push({distance: altHistory[altHistory.length - 1].distance + distance, altitude: altitude});
+            } else {
+                altHistory.push({distance: 0, altitude: altitude});
+            }
 
-            let distanceHistory = 0;
-            let cutPosition = 0;
-            for (let x = altHistory.length - 1; x >= 0; x--) {
-                distanceHistory += altHistory[x].distance;
-                if (distanceHistory > 10) {
-                    cutPosition = x;
-                    break;
+            if (altHistory.length > 2) {
+                const lastDistance = altHistory[altHistory.length - 1].distance;
+                let cutPosition = 0;
+                for (let x = altHistory.length - 1; x >= 0; x--) {
+                    if (lastDistance - altHistory[x].distance > 1000) {
+                        cutPosition = x;
+                        break;
+                    }
+                }
+                if (cutPosition > 0) {
+                    console.log(altHistory);
+                    console.log("cutPosition: ", cutPosition);
+                    altHistory.splice(0, cutPosition);
+                    console.log(altHistory);
                 }
             }
-            if (cutPosition > 0) {
-                altHistory.splice(0, cutPosition);
-            }
+
+            drawAltHistory();
         }
 
         document.addEventListener("DOMContentLoaded", function (e) {
@@ -285,8 +595,24 @@
                 enableHighAccuracy: true,
                 maximumAge: 60000
             });
+            
             initCanvas();
             drawAltHistory();
+
+           /* setInterval(() => {
+                if (knownIndex < knownData.length - 1) {
+                    const position = {
+                        coords: {
+                            altitude: Math.random() * 200,
+                            longitude: knownData[knownIndex][0],
+                            latitude: knownData[knownIndex][1]
+                        }
+
+                    };
+                    updatePosition(position);
+                    knownIndex++;
+                }
+            }, 1000);*/
         });
 
     </script>
