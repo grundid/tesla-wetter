@@ -355,7 +355,7 @@
         const point = turf.helpers.point;
         const turfDistance = turf.distance.default;
 
-        const altHistory = [];
+        let altHistory = [];
 
         let posDetails = 8;
 
@@ -542,6 +542,9 @@
                 dataStats.maxAltitude = Math.max(dataStats.maxAltitude, dataPoint.altitude);
             });
 
+            altCtx.font = '13px sans-serif';
+            altCtx.fillText(Math.floor(dataStats.maxDist - dataStats.minDist) + 'm', 0, 200);
+
             if (altHistory.length > 1) {
                 let dataPoint = altHistory[0];
 
@@ -575,23 +578,24 @@
                     altitude: altitude
                 });
             }
-            /*
-                        if (altHistory.length > 2) {
-                            const lastDistance = altHistory[altHistory.length - 1].distance;
-                            let cutPosition = 0;
-                            for (let x = altHistory.length - 1; x >= 0; x--) {
-                                if (lastDistance - altHistory[x].distance > 10000) {
-                                    cutPosition = x;
-                                    break;
-                                }
-                            }
-                            if (cutPosition > 0) {
-                                console.log(altHistory);
-                                console.log("cutPosition: ", cutPosition);
-                                altHistory.splice(0, cutPosition);
-                                console.log(altHistory);
-                            }
-                        }*/
+
+            if (altHistory.length > 2) {
+                const lastDistance = altHistory[altHistory.length - 1].distance;
+                let cutPosition = 0;
+                for (let x = altHistory.length - 1; x >= 0; x--) {
+                    console.log(lastDistance - altHistory[x].distance);
+                    if (lastDistance - altHistory[x].distance > 10000) {
+                        cutPosition = x;
+                        break;
+                    }
+                }
+                if (cutPosition > 0) {
+                    console.log(altHistory);
+                    console.log("cutPosition: ", cutPosition);
+                    altHistory = altHistory.slice(cutPosition + 1, altHistory.length - 1);
+                    console.log(altHistory);
+                }
+            }
 
             drawAltHistory();
         }
@@ -612,20 +616,20 @@
             initCanvas();
             drawAltHistory();
 
-            /* setInterval(() => {
-                 if (knownIndex < knownData.length - 1) {
-                     const position = {
-                         coords: {
-                             altitude: Math.random() * 200,
-                             longitude: knownData[knownIndex][0],
-                             latitude: knownData[knownIndex][1]
-                         }
+            /*setInterval(() => {
+                if (knownIndex < knownData.length - 1) {
+                    const position = {
+                        coords: {
+                            altitude: Math.random() * 200,
+                            longitude: knownData[knownIndex][0],
+                            latitude: knownData[knownIndex][1]
+                        }
 
-                     };
-                     updatePosition(position);
-                     knownIndex++;
-                 }
-             }, 1000);*/
+                    };
+                    updatePosition(position);
+                    knownIndex++;
+                }
+            }, 1000);*/
         });
     </script>
 </head>
