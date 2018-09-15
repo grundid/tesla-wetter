@@ -348,7 +348,7 @@
         const elementNames = ["latitude", "longitude",
             "altitude", "minAltitude", "maxAltitude", "accuracy",
             "altitudeAccuracy", "heading", "speed", "distance", "errorLog",
-            "altitudeGained", "altitudeLost", "incline", "directionCanvas", "heightCanvas"
+            "altitudeGained", "altitudeLost", "incline", "directionCanvas", "heightCanvas", "windCanvas"
         ];
         const elements = {};
 
@@ -362,12 +362,15 @@
         let ctx = null;
         let lastAltitudePoint = null; // {latitude: 49.27, longitude: 8.64, altitude: 150};
 
+        let windCtx = null;
+
         let lastLatitude;
         let lastLongitude;
         let minAltitude, maxAltitude = null;
         let totalDistance = 0;
         let errorLogContent = "";
         let minAltValue, maxAltValue = null;
+        let isDrawing = false;
         const altDelta = 5;
         let lastAltitudeReference = null;
         const data = {
@@ -424,7 +427,7 @@
                     elements["speed"].innerText = pos.speed ? (pos.speed * 3.6).toFixed(2) : "-";
 
                     if (pos.heading) {
-                        rotateDirection(pos.heading);
+                        rotateDirection(ctx, pos.heading);
                     }
                     minAltValue = setMinMaxAltitude(minAltValue, pos.altitude, Math.min);
                     maxAltValue = setMinMaxAltitude(maxAltValue, pos.altitude, Math.max);
@@ -487,38 +490,38 @@
             elements["errorLog"].innerHTML = result;
         }
 
-        function performanceAvailable() {
-            elements["errorLog"].innerHTML ='window.performance ' + window.hasOwnProperty('performance') ? 'verfügbar' : 'nicht verfügbar';
-        }
-
-        function rotateDirection(degrees) {
-            ctx.clearRect(-200, -200, 400, 400);
-            ctx.save();
+        function rotateDirection(context, degrees) {
+            context.clearRect(-200, -200, 400, 400);
+            context.save();
             elements["errorLog"].innerHTML = "rotate with: " + degrees;
-            ctx.rotate((Math.PI / 180) * degrees);
-            drawCircle();
-            ctx.restore();
+            context.rotate((Math.PI / 180) * degrees);
+            drawCircle(context);
+            context.restore();
         }
 
-        function drawCircle() {
-            ctx.beginPath();
-            ctx.arc(0, 0, 100, 0, 2 * Math.PI);
-            ctx.stroke();
-            ctx.moveTo(0, -100);
-            ctx.lineTo(0, 100);
-            ctx.stroke();
-            ctx.moveTo(0, -100);
-            ctx.lineTo(20, -80);
-            ctx.stroke();
-            ctx.moveTo(0, -100);
-            ctx.lineTo(-20, -80);
-            ctx.stroke();
+        function drawCircle(context) {
+            context.beginPath();
+            context.arc(0, 0, 100, 0, 2 * Math.PI);
+            context.stroke();
+            context.moveTo(0, -100);
+            context.lineTo(0, 100);
+            context.stroke();
+            context.moveTo(0, -100);
+            context.lineTo(20, -80);
+            context.stroke();
+            context.moveTo(0, -100);
+            context.lineTo(-20, -80);
+            context.stroke();
         }
 
         function initCanvas() {
             const canvas = elements["directionCanvas"];
             ctx = canvas.getContext("2d");
             ctx.translate(100, 100);
+
+            const windCanvas = elements["windCanvas"];
+            windCtx = windCanvas.getContext("2d");
+            windCtx.translate(100, 100);
         }
 
         function toggleDetails() {
@@ -530,44 +533,52 @@
         }
 
         function drawAltHistory() {
-            const altCtx = elements["heightCanvas"].getContext("2d");
-            altCtx.clearRect(0, 0, 200, 200);
+            if (!isDrawing) {
+                isDrawing = true;
+                const start = performance.now();
+                const altCtx = elements["heightCanvas"].getContext("2d");
+                altCtx.clearRect(0, 0, 200, 200);
 
-            const dataStats = {
-                minDist: Number.MAX_SAFE_INTEGER,
-                maxDist: Number.MIN_SAFE_INTEGER,
-                minAltitude: Number.MAX_SAFE_INTEGER,
-                maxAltitude: Number.MIN_SAFE_INTEGER
-            };
+                const dataStats = {
+                    minDist: Number.MAX_SAFE_INTEGER,
+                    maxDist: Number.MIN_SAFE_INTEGER,
+                    minAltitude: Number.MAX_SAFE_INTEGER,
+                    maxAltitude: Number.MIN_SAFE_INTEGER
+                };
 
-            altHistory.forEach((dataPoint) => {
-                dataStats.minDist = Math.min(dataStats.minDist, dataPoint.distance);
-                dataStats.maxDist = Math.max(dataStats.maxDist, dataPoint.distance);
-                dataStats.minAltitude = Math.min(dataStats.minAltitude, dataPoint.altitude);
-                dataStats.maxAltitude = Math.max(dataStats.maxAltitude, dataPoint.altitude);
-            });
+                altHistory.forEach((dataPoint) => {
+                    dataStats.minDist = Math.min(dataStats.minDist, dataPoint.distance);
+                    dataStats.maxDist = Math.max(dataStats.maxDist, dataPoint.distance);
+                    dataStats.minAltitude = Math.min(dataStats.minAltitude, dataPoint.altitude);
+                    dataStats.maxAltitude = Math.max(dataStats.maxAltitude, dataPoint.altitude);
+                });
 
-            altCtx.font = '13px sans-serif';
-            altCtx.fillText(Math.floor(dataStats.maxDist - dataStats.minDist) + 'm', 0, 200);
+                altCtx.font = '13px sans-serif';
+                altCtx.fillText(Math.floor(dataStats.maxDist - dataStats.minDist) + 'm', 0, 200);
 
-            if (altHistory.length > 1) {
-                let dataPoint = altHistory[0];
+                if (altHistory.length > 1) {
+                    let dataPoint = altHistory[0];
 
-                function posX(x) {
-                    return (x - dataStats.minDist) * (200 / dataStats.maxDist);
+                    function posX(x) {
+                        return (x - dataStats.minDist) * (200 / dataStats.maxDist);
+                    }
+
+                    function posY(y) {
+                        return 200 - ((y - dataStats.minAltitude) * (200 / dataStats.maxAltitude));
+                    }
+
+                    altCtx.beginPath();
+                    altCtx.moveTo(posX(dataPoint.distance), posY(dataPoint.altitude));
+                    for (let x = 1; x < altHistory.length; x++) {
+                        dataPoint = altHistory[x];
+                        altCtx.lineTo(posX(dataPoint.distance), posY(dataPoint.altitude));
+                        altCtx.stroke();
+                    }
                 }
-
-                function posY(y) {
-                    return 200 - ((y - dataStats.minAltitude) * (200 / dataStats.maxAltitude));
-                }
-
-                altCtx.beginPath();
-                altCtx.moveTo(posX(dataPoint.distance), posY(dataPoint.altitude));
-                for (let x = 1; x < altHistory.length; x++) {
-                    dataPoint = altHistory[x];
-                    altCtx.lineTo(posX(dataPoint.distance), posY(dataPoint.altitude));
-                    altCtx.stroke();
-                }
+                const end = performance.now();
+                const diff = end - start;
+                elements["errorLog"].innerText = Math.round(diff) + 'ms';
+                isDrawing = false;
             }
         }
 
@@ -621,7 +632,7 @@
             initCanvas();
             drawAltHistory();
 
-            setInterval(() => {
+            setInterval(function () {
                 if (knownIndex < knownData.length - 1) {
                     const position = {
                         coords: {
@@ -635,6 +646,20 @@
                     knownIndex++;
                 }
             }, 1000);
+
+            const weatherCallback = function () {
+                const req = new XMLHttpRequest();
+                req.addEventListener("load", function () {
+                    if (req.status >= 200 && req.status <= 400) {
+                        const resp = JSON.parse(req.responseText);
+                        rotateDirection(windCtx, resp.wind.deg);
+                    }
+                });
+                req.open("GET", "https://api.openweathermap.org/data/2.5/weather?lat=" + lastLatitude +
+                    "&lon=" + lastLongitude + "&APPID=4d005e221d19c183f81e8468e4582469");
+                req.send();
+            };
+            setInterval(weatherCallback, 10000);
         });
     </script>
 </head>
@@ -705,12 +730,15 @@
         <canvas id="heightCanvas" width="200" height="200">
         </canvas>
     </div>
+    <div>
+        <canvas id="windCanvas" width="200" height="200">
+        </canvas>
+    </div>
 
     <div>
         <button onclick="debugObjects();">Show Objects</button>
-        <button onclick="performanceAvailable();">Show Performance Object</button>
         <button onclick="resetData();">Reset data</button>
-        <button onclick="rotateDirection(90);">Canvas Test</button>
+        <button onclick="rotateDirection(ctx, 90);">Canvas Test</button>
         <button onclick="toggleDetails();">Toggle Details</button>
 
     </div>
