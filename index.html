@@ -567,7 +567,7 @@
                 const lastDistance = altHistory[altHistory.length - 1].distance;
                 let cutPosition = 0;
                 for (let x = altHistory.length - 1; x >= 0; x--) {
-                    if (lastDistance - altHistory[x].distance > 1000) {
+                    if (lastDistance - altHistory[x].distance > 10000) {
                         cutPosition = x;
                         break;
                     }
