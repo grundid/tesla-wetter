@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="turf.tools.js"></script>
     <title>Tesla Wetter</title>
@@ -377,6 +378,7 @@
             altitudeGained: 0,
             altitudeLost: 0
         };
+        let pos = null;
 
         function resetData() {
             totalDistance = 0;
@@ -412,9 +414,11 @@
         }
 
         function updatePosition(position) {
-            try {
+            pos = position.coords;
+        }
 
-                let pos = position.coords;
+        function updateScreen() {
+            try {
                 if (pos) {
 
                     elements["latitude"].innerText = pos.latitude ? pos.latitude.toFixed(posDetails) : "-";
@@ -481,6 +485,9 @@
                 }
             } catch (e) {
                 elements["errorLog"].innerHTML = e;
+            }
+            finally {
+                window.requestAnimationFrame(updateScreen);
             }
         }
 
@@ -599,21 +606,39 @@
                 const lastDistance = altHistory[altHistory.length - 1].distance;
                 let cutPosition = 0;
                 for (let x = altHistory.length - 1; x >= 0; x--) {
-                    console.log(lastDistance - altHistory[x].distance);
                     if (lastDistance - altHistory[x].distance > 5000) {
                         cutPosition = x;
                         break;
                     }
                 }
                 if (cutPosition > 0) {
-                    console.log(altHistory);
+                    //console.log(altHistory);
                     console.log("cutPosition: ", cutPosition);
                     altHistory = altHistory.slice(cutPosition + 1, altHistory.length - 1);
-                    console.log(altHistory);
+                    //console.log(altHistory);
                 }
             }
 
             drawAltHistory();
+        }
+
+        function sendFakePositionEvents() {
+            let height = 200;
+            setInterval(function () {
+                if (knownIndex < knownData.length - 1) {
+                    height = height + (Math.random() - 0.5) * 10;
+                    const position = {
+                        coords: {
+                            altitude: height,
+                            longitude: knownData[knownIndex][0],
+                            latitude: knownData[knownIndex][1]
+                        }
+
+                    };
+                    updatePosition(position);
+                    knownIndex++;
+                }
+            }, 500);
         }
 
         document.addEventListener("DOMContentLoaded", function (e) {
@@ -631,21 +656,9 @@
 
             initCanvas();
             drawAltHistory();
-
-            setInterval(function () {
-                if (knownIndex < knownData.length - 1) {
-                    const position = {
-                        coords: {
-                            altitude: Math.random() * 200,
-                            longitude: knownData[knownIndex][0],
-                            latitude: knownData[knownIndex][1]
-                        }
-
-                    };
-                    updatePosition(position);
-                    knownIndex++;
-                }
-            }, 1000);
+            if (window.location.hostname === "localhost") {
+                sendFakePositionEvents();
+            }
 
             const weatherCallback = function () {
                 const req = new XMLHttpRequest();
@@ -660,90 +673,92 @@
                 req.send();
             };
             setInterval(weatherCallback, 10000);
+
+            window.requestAnimationFrame(updateScreen);
         });
     </script>
 </head>
 
 <body>
-    <h4>Shows you your current GPS position, altitude, heading and speed from your browser.</h4>
-    <div class="container">
-        <div>
-            <div class="label">Latitude</div>
-            <div id="latitude" class="value"></div>
-        </div>
-        <div>
-            <div class="label">Longitude</div>
-            <div id="longitude" class="value"></div>
-        </div>
-        <div>
-            <div class="label">Altitude</div>
-            <div id="altitude" class="value"></div>
-        </div>
-        <div>
-            <div class="label">Accuracy</div>
-            <div id="accuracy" class="value"></div>
-        </div>
-        <div>
-            <div class="label">Altitude Accuracy</div>
-            <div id="altitudeAccuracy" class="value"></div>
-        </div>
-        <div>
-            <div class="label">Heading</div>
-            <div id="heading" class="value"></div>
-        </div>
-        <div>
-            <div class="label">Speed km/h</div>
-            <div id="speed" class="value"></div>
-        </div>
-        <div>
-            <div class="label">Distance KM</div>
-            <div id="distance" class="value"></div>
-        </div>
-    </div>
-    <div class="container">
-        <div>
-            <div class="label">min. Altitude</div>
-            <div id="minAltitude" class="value"></div>
-        </div>
-        <div>
-            <div class="label">max. Altitude</div>
-            <div id="maxAltitude" class="value"></div>
-        </div>
-        <div>
-            <div class="label">Altitude gained</div>
-            <div id="altitudeGained" class="value"></div>
-        </div>
-        <div>
-            <div class="label">Altitude lost</div>
-            <div id="altitudeLost" class="value"></div>
-        </div>
-        <div>
-            <div class="label">Incline</div>
-            <div id="incline" class="value"></div>
-        </div>
-
-    </div>
-
+<h4>Shows you your current GPS position, altitude, heading and speed from your browser.</h4>
+<div class="container">
     <div>
-        <canvas id="directionCanvas" width="200" height="200">
-        </canvas>
-        <canvas id="heightCanvas" width="200" height="200">
-        </canvas>
+        <div class="label">Latitude</div>
+        <div id="latitude" class="value"></div>
     </div>
     <div>
-        <canvas id="windCanvas" width="200" height="200">
-        </canvas>
+        <div class="label">Longitude</div>
+        <div id="longitude" class="value"></div>
     </div>
-
     <div>
-        <button onclick="debugObjects();">Show Objects</button>
-        <button onclick="resetData();">Reset data</button>
-        <button onclick="rotateDirection(ctx, 90);">Canvas Test</button>
-        <button onclick="toggleDetails();">Toggle Details</button>
-
+        <div class="label">Altitude</div>
+        <div id="altitude" class="value"></div>
+    </div>
+    <div>
+        <div class="label">Accuracy</div>
+        <div id="accuracy" class="value"></div>
+    </div>
+    <div>
+        <div class="label">Altitude Accuracy</div>
+        <div id="altitudeAccuracy" class="value"></div>
+    </div>
+    <div>
+        <div class="label">Heading</div>
+        <div id="heading" class="value"></div>
+    </div>
+    <div>
+        <div class="label">Speed km/h</div>
+        <div id="speed" class="value"></div>
+    </div>
+    <div>
+        <div class="label">Distance KM</div>
+        <div id="distance" class="value"></div>
+    </div>
+</div>
+<div class="container">
+    <div>
+        <div class="label">min. Altitude</div>
+        <div id="minAltitude" class="value"></div>
+    </div>
+    <div>
+        <div class="label">max. Altitude</div>
+        <div id="maxAltitude" class="value"></div>
+    </div>
+    <div>
+        <div class="label">Altitude gained</div>
+        <div id="altitudeGained" class="value"></div>
+    </div>
+    <div>
+        <div class="label">Altitude lost</div>
+        <div id="altitudeLost" class="value"></div>
+    </div>
+    <div>
+        <div class="label">Incline</div>
+        <div id="incline" class="value"></div>
     </div>
 
-    <div id="errorLog"></div>
+</div>
+
+<div>
+    <canvas id="directionCanvas" width="200" height="200">
+    </canvas>
+    <canvas id="heightCanvas" width="200" height="200">
+    </canvas>
+</div>
+<div>
+    <canvas id="windCanvas" width="200" height="200">
+    </canvas>
+</div>
+
+<div>
+    <button onclick="debugObjects();">Show Objects</button>
+    <button onclick="resetData();">Reset data</button>
+    <button onclick="rotateDirection(ctx, 90);">Canvas Test</button>
+    <button onclick="toggleDetails();">Toggle Details</button>
+
+</div>
+
+<div id="errorLog"></div>
 </body>
 
 </html>
