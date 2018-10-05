@@ -371,7 +371,6 @@
         let totalDistance = 0;
         let errorLogContent = "";
         let minAltValue, maxAltValue = null;
-        let isDrawing = false;
         const altDelta = 5;
         let lastAltitudeReference = null;
         const data = {
@@ -472,13 +471,10 @@
                             const distance = turfDistance(point([posAlt.longitude, posAlt.latitude]),
                                 point([lastAltitudePoint.longitude, lastAltitudePoint.latitude])) * 1000;
                             const heightDifference = posAlt.altitude - lastAltitudePoint.altitude;
-
                             const diff = (distance !== 0 ? heightDifference / distance : 0) * 100;
-
                             elements["incline"].innerText = diff.toFixed(1) + "%";
 
                             addAltitudePoint(distance, posAlt.altitude);
-
                         }
                         lastAltitudePoint = posAlt;
                     }
@@ -540,53 +536,49 @@
         }
 
         function drawAltHistory() {
-            if (!isDrawing) {
-                isDrawing = true;
-                const start = performance.now();
-                const altCtx = elements["heightCanvas"].getContext("2d");
-                altCtx.clearRect(0, 0, 200, 200);
+            const start = performance.now();
+            const altCtx = elements["heightCanvas"].getContext("2d");
+            altCtx.clearRect(0, 0, 200, 200);
 
-                const dataStats = {
-                    minDist: Number.MAX_SAFE_INTEGER,
-                    maxDist: Number.MIN_SAFE_INTEGER,
-                    minAltitude: Number.MAX_SAFE_INTEGER,
-                    maxAltitude: Number.MIN_SAFE_INTEGER
-                };
+            const dataStats = {
+                minDist: Number.MAX_SAFE_INTEGER,
+                maxDist: Number.MIN_SAFE_INTEGER,
+                minAltitude: Number.MAX_SAFE_INTEGER,
+                maxAltitude: Number.MIN_SAFE_INTEGER
+            };
 
-                altHistory.forEach((dataPoint) => {
-                    dataStats.minDist = Math.min(dataStats.minDist, dataPoint.distance);
-                    dataStats.maxDist = Math.max(dataStats.maxDist, dataPoint.distance);
-                    dataStats.minAltitude = Math.min(dataStats.minAltitude, dataPoint.altitude);
-                    dataStats.maxAltitude = Math.max(dataStats.maxAltitude, dataPoint.altitude);
-                });
+            altHistory.forEach((dataPoint) => {
+                dataStats.minDist = Math.min(dataStats.minDist, dataPoint.distance);
+                dataStats.maxDist = Math.max(dataStats.maxDist, dataPoint.distance);
+                dataStats.minAltitude = Math.min(dataStats.minAltitude, dataPoint.altitude);
+                dataStats.maxAltitude = Math.max(dataStats.maxAltitude, dataPoint.altitude);
+            });
 
-                altCtx.font = '13px sans-serif';
-                altCtx.fillText(Math.floor(dataStats.maxDist - dataStats.minDist) + 'm', 0, 200);
+            altCtx.font = '13px sans-serif';
+            altCtx.fillText(Math.floor(dataStats.maxDist - dataStats.minDist) + 'm', 0, 200);
 
-                if (altHistory.length > 1) {
-                    let dataPoint = altHistory[0];
+            if (altHistory.length > 1) {
+                let dataPoint = altHistory[0];
 
-                    function posX(x) {
-                        return (x - dataStats.minDist) * (200 / dataStats.maxDist);
-                    }
-
-                    function posY(y) {
-                        return 200 - ((y - dataStats.minAltitude) * (200 / dataStats.maxAltitude));
-                    }
-
-                    altCtx.beginPath();
-                    altCtx.moveTo(posX(dataPoint.distance), posY(dataPoint.altitude));
-                    for (let x = 1; x < altHistory.length; x++) {
-                        dataPoint = altHistory[x];
-                        altCtx.lineTo(posX(dataPoint.distance), posY(dataPoint.altitude));
-                        altCtx.stroke();
-                    }
+                function posX(x) {
+                    return (x - dataStats.minDist) * (200 / dataStats.maxDist);
                 }
-                const end = performance.now();
-                const diff = end - start;
-                elements["errorLog"].innerText = Math.round(diff) + 'ms';
-                isDrawing = false;
+
+                function posY(y) {
+                    return 200 - ((y - dataStats.minAltitude) * (200 / dataStats.maxAltitude));
+                }
+
+                altCtx.beginPath();
+                altCtx.moveTo(posX(dataPoint.distance), posY(dataPoint.altitude));
+                for (let x = 1; x < altHistory.length; x++) {
+                    dataPoint = altHistory[x];
+                    altCtx.lineTo(posX(dataPoint.distance), posY(dataPoint.altitude));
+                    altCtx.stroke();
+                }
             }
+            const end = performance.now();
+            const diff = end - start;
+            elements["errorLog"].innerText = Math.round(diff) + 'ms';
         }
 
         function addAltitudePoint(distance, altitude) {
