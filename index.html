@@ -471,10 +471,10 @@
                             const distance = turfDistance(point([posAlt.longitude, posAlt.latitude]),
                                 point([lastAltitudePoint.longitude, lastAltitudePoint.latitude])) * 1000;
                             const heightDifference = posAlt.altitude - lastAltitudePoint.altitude;
-                            const diff = (distance !== 0 ? heightDifference / distance : 0) * 100;
+                            const diff = (distance > 10 ? heightDifference / distance : 0) * 100;
                             elements["incline"].innerText = diff.toFixed(1) + "%";
 
-                            addAltitudePoint(distance, posAlt.altitude);
+                            // addAltitudePoint(distance, posAlt.altitude);
                         }
                         lastAltitudePoint = posAlt;
                     }
