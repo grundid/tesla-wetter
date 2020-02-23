@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="turf.suc.tools.js"></script>
+    <script src="suc-layout.js"></script>
+    <title>Tesla Wetter</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .container div {
+            margin-right: 16px;
+        }
+
+        .label {
+            font-variant: small-caps;
+        }
+
+        .value {
+            font-size: 34px;
+        }
+
+        @media (max-width: 767px) {
+            body {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding-left: 32px;
+                padding-right: 32px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+    <h4>Shows you the layout of the closest supercharger.</h4>
+    <div>
+        <canvas id="sucCanvas" width="500" height="500" style="background-color: aquamarine;">
+        </canvas>
+    </div>
+
+    <div id="errorLog"></div>
+</body>
+
+</html>
