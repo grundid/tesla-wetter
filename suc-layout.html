@@ -60,7 +60,7 @@
         <canvas id="sucCanvas" width="960" height="500" style="background-color: #F0F0F0;">
         </canvas>
     </div>
-
+    <div id="stallStats"></div>
     <div>
         <button onclick="processKey('W');">Width+</button>
         <button onclick="processKey('w');">Width-</button>
@@ -73,10 +73,20 @@
     </div>
     <div>
         <button onclick="processKey('A');">Add stall</button>
+        <button onclick="processKey('s');">Select prev</button>
+        <button onclick="processKey('S');">Select next</button>
         <button onclick="processKey('P');">Reset Position</button>
         <button onclick="processKey('D');">Delete all stalls</button>
     </div>
-    <div id="errorLog"></div>
+    <div>
+        <button onclick="processKey('ArrowLeft');">Move Left</button>
+        <button onclick="processKey('ArrowRight');">Move Right</button>
+        <button onclick="processKey('ArrowUp');">Move Up</button>
+        <button onclick="processKey('ArrowDown');">Move Down</button>
+        <button onclick="logData()">Log Data</button>
+    </div>
+    <div id="stats"></div>
+    <div id="data"></div>
 </body>
 
 </html>

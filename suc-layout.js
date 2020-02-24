@@ -1,9 +1,12 @@
 let ctx;
+const print = console.log;
 
 const point = turf.helpers.point;
 const turfDistance = turf.distance.default;
 const destination = turf.destination.default;
 const projection = turf.projection;
+let frameCounter = 0;
+let frameTime = 0;
 
 class Stall {
     constructor(x, y, width, length, rotation) {
@@ -29,6 +32,9 @@ let selectedStall = 0;
 let canvasWidth = 0;
 let canvasHeight = 0;
 let center;
+let stats;
+let stallStats;
+let data;
 
 
 function drawCircle(context) {
@@ -72,6 +78,9 @@ function drawStall(context, points, selectedStall) {
     context.stroke();
     context.closePath();
     context.stroke();
+
+    ctx.font = "20px Arial";
+    ctx.fillText("1A", (points[0][0] - center[0]) * scale, (points[0][1] - center[1]) * -scale);
 }
 
 function drawPosition(context, position) {
@@ -85,9 +94,10 @@ function drawPosition(context, position) {
 
 }
 
-const print = console.log;
 
 function drawSuc() {
+    const start = performance.now();
+    frameCounter++;
     ctx.clearRect(-(canvasWidth / 2), -(canvasHeight / 2), canvasWidth, canvasHeight);
     for (let x = 0; x < stalls.length; x++) {
         const stall = stalls[x];
@@ -110,10 +120,16 @@ function drawSuc() {
         points.push(projection.toMercator(bottomRight["geometry"])["coordinates"]);
         points.push(projection.toMercator(bottomLeft["geometry"])["coordinates"]);
         drawStall(ctx, points, selectedStall == x);
-
     }
 
     drawPosition(ctx, userPosition);
+    const end = performance.now();
+    frameTime = Math.round(end - start);
+    updateStats();
+}
+
+function updateStats() {
+    stats.innerText = "Frame: " + frameCounter + " Time: " + frameTime;
 }
 
 function updatePosition(position) {
@@ -123,7 +139,21 @@ function updatePosition(position) {
     window.requestAnimationFrame(drawSuc);
 }
 
+function logData() {
+    let result = "";
+    for (let stall of stalls) {
+        result += "x: " + stall.x + ", y: " + stall.y + ", w: " + stall.width + ", l: " +
+            stall.length + " r: " + stall.rotation + " - ";
+    }
+    data.innerText = result;
+}
+
+
 document.addEventListener("DOMContentLoaded", function (e) {
+    stats = document.getElementById("stats");
+    stallStats = document.getElementById("stallStats");
+    data = document.getElementById("data");
+
     initCanvas();
     drawSuc();
 
@@ -136,6 +166,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
 });
 
 function processKey(key) {
+    const lastKeyDiff = new Date().getTime() - lastKeyEvent;
+    if (lastKeyDiff < 400) {
+        return;
+    }
+    lastKeyEvent = new Date().getTime();
+
+
     if ((key === "W")) {
         if (stalls[selectedStall].width < 5) {
 
@@ -199,10 +236,66 @@ function processKey(key) {
         stalls.length = 0;
         selectedStall = -1;
     }
+    if (key == "s") {
+        if (stalls.length > 0) {
+            if (selectedStall > 0) {
+                selectedStall--;
+            } else {
+                selectedStall = stalls.length - 1;
+            }
+        }
+    }
+    if (key == "S") {
+        if (stalls.length > 0) {
+            if (selectedStall >= stalls.length - 1) {
+                selectedStall = 0;
+            } else {
+                selectedStall++;
+            }
+        }
+    }
+    if (key == "ArrowUp") {
+        if (selectedStall != -1) {
+            const stall = stalls[selectedStall];
+            const position = [stall.x, stall.y];
+            const newPost = destination(point(position), 0.2 / 1000, Math.abs(stall.rotation))["geometry"]["coordinates"];
+            stall.x = newPost[0];
+            stall.y = newPost[1];
+        }
+    }
+    if (key == "ArrowDown") {
+        if (selectedStall != -1) {
+            const stall = stalls[selectedStall];
+            const position = [stall.x, stall.y];
+            const newPost = destination(point(position), -(0.2 / 1000), Math.abs(stall.rotation))["geometry"]["coordinates"];
+            stall.x = newPost[0];
+            stall.y = newPost[1];
+        }
+    }
+    if (key == "ArrowLeft") {
+        if (selectedStall != -1) {
+            const stall = stalls[selectedStall];
+            const position = [stall.x, stall.y];
+            const newPost = destination(point(position), -(0.2 / 1000), Math.abs(stall.rotation + 90))["geometry"]["coordinates"];
+            stall.x = newPost[0];
+            stall.y = newPost[1];
+        }
+    }
+    if (key == "ArrowRight") {
+        if (selectedStall != -1) {
+            const stall = stalls[selectedStall];
+            const position = [stall.x, stall.y];
+            const newPost = destination(point(position), (0.2 / 1000), Math.abs(stall.rotation + 90))["geometry"]["coordinates"];
+            stall.x = newPost[0];
+            stall.y = newPost[1];
+        }
+    }
     window.requestAnimationFrame(drawSuc);
 }
 
+let lastKeyEvent = 0;
+
 document.addEventListener("keydown", (event) => {
-    //console.log(event);
     processKey(event.key);
+    console.log(event);
 });
