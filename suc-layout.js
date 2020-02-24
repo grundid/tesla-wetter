@@ -9,24 +9,31 @@ let frameCounter = 0;
 let frameTime = 0;
 
 class Stall {
-    constructor(x, y, width, length, rotation) {
+    constructor(x, y, width, length, rotation, label) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.length = length;
         this.rotation = rotation;
+        this.label = label;
     }
 }
 
 
 
-//let position = [9.166627, 49.277359]; // real position
+
+
+let position = [9.166627, 49.277359]; // real position
 //let userPosition = [9.166627, 49.277359];
-let position = [9.1773, 49.2756]; // browser
+//let position = [9.1773, 49.2756]; // browser
 let userPosition = [9.166627, 49.277359];
 let scale = 8;
 let points;
-const stalls = [new Stall(9.166627, 49.277359, 3, 5, 0)];
+const stalls = [new Stall(9.1666705, 49.277318, 2.3, 4.6, 10, "1A"),
+new Stall(9.1666395, 49.27732183, 2.4, 4.7, 10, "1B"),
+new Stall(9.166607085, 49.277326914, 2.6, 4.6, 10, "2A"),
+new Stall(9.166572864, 49.27733266, 2.6, 4.7, 10, "2B"),
+];
 let selectedStall = 0;
 
 let canvasWidth = 0;
@@ -35,6 +42,7 @@ let center;
 let stats;
 let stallStats;
 let data;
+let stallLabel;
 
 
 function drawCircle(context) {
@@ -64,7 +72,7 @@ function initCanvas() {
     ctx.translate(canvasWidth / 2, canvasHeight / 2);
 }
 
-function drawStall(context, points, selectedStall) {
+function drawStall(context, points, selectedStall, label, stallCenter) {
     context.beginPath();
     context.lineWidth = 1;
     context.strokeStyle = selectedStall ? "red" : "black";
@@ -79,8 +87,9 @@ function drawStall(context, points, selectedStall) {
     context.closePath();
     context.stroke();
 
-    ctx.font = "20px Arial";
-    ctx.fillText("1A", (points[0][0] - center[0]) * scale, (points[0][1] - center[1]) * -scale);
+    context.font = "20px Arial";
+    const textWidth2 = context.measureText(label).width / 2;
+    context.fillText(label, ((stallCenter[0] - center[0]) * scale) - textWidth2, (stallCenter[1] - center[1]) * -scale);
 }
 
 function drawPosition(context, position) {
@@ -113,13 +122,13 @@ function drawSuc() {
         const bottomRight = destination(point(position), distance / 1000, 180 - angle + stall.rotation);
         const bottomLeft = destination(point(position), distance / 1000, -180 + angle + stall.rotation);
 
+        const stallCenter = projection.toMercator(point(position))["geometry"]["coordinates"];
         points = [];
-
         points.push(projection.toMercator(topLeft["geometry"])["coordinates"]);
         points.push(projection.toMercator(topRight["geometry"])["coordinates"]);
         points.push(projection.toMercator(bottomRight["geometry"])["coordinates"]);
         points.push(projection.toMercator(bottomLeft["geometry"])["coordinates"]);
-        drawStall(ctx, points, selectedStall == x);
+        drawStall(ctx, points, selectedStall == x, stall.label, stallCenter);
     }
 
     drawPosition(ctx, userPosition);
@@ -133,7 +142,6 @@ function updateStats() {
 }
 
 function updatePosition(position) {
-    console.log(position);
     pos = position.coords;
     userPosition = [pos.longitude, pos.latitude];
     window.requestAnimationFrame(drawSuc);
@@ -148,21 +156,51 @@ function logData() {
     data.innerText = result;
 }
 
+function logGeoJson() {
+    const features = [];
+    for (let x = 0; x < stalls.length; x++) {
+        const stall = stalls[x];
+        const distance = Math.sqrt((stall.width / 2) * (stall.width / 2) + (stall.length / 2) * (stall.length / 2));
+        const angle = Math.asin((stall.width / 2) / distance) * (180 / Math.PI);
+
+        //print("width: ", stall.width, " length: ", stall.length, " angle: ", angle, " distance: ", distance, " scale: " + scale);
+
+        const position = [stall.x, stall.y];
+
+        const topLeft = destination(point(position), distance / 1000, -angle + stall.rotation);
+        const topRight = destination(point(position), distance / 1000, angle + stall.rotation);
+        const bottomRight = destination(point(position), distance / 1000, 180 - angle + stall.rotation);
+        const bottomLeft = destination(point(position), distance / 1000, -180 + angle + stall.rotation);
+
+        const polygon = [];
+        polygon.push(topLeft["geometry"]["coordinates"]);
+        polygon.push(topRight["geometry"]["coordinates"]);
+        polygon.push(bottomRight["geometry"]["coordinates"]);
+        polygon.push(bottomLeft["geometry"]["coordinates"]);
+        polygon.push(topLeft["geometry"]["coordinates"]);
+
+        features.push(turf.helpers.polygon([polygon], { "name": stall.label }));
+    }
+
+    data.innerText = JSON.stringify(turf.helpers.featureCollection(features));
+}
+
 
 document.addEventListener("DOMContentLoaded", function (e) {
     stats = document.getElementById("stats");
     stallStats = document.getElementById("stallStats");
     data = document.getElementById("data");
+    stallLabel = document.getElementById("stallLabel");
 
     initCanvas();
     drawSuc();
 
-    let watchId = navigator.geolocation.watchPosition(updatePosition, function (positionError) {
-        console.log(positionError);
-    }, {
-        enableHighAccuracy: true,
-        maximumAge: 60000
-    });
+    /*  let watchId = navigator.geolocation.watchPosition(updatePosition, function (positionError) {
+          console.log(positionError);
+      }, {
+          enableHighAccuracy: true,
+          maximumAge: 60000
+      });*/
 });
 
 function processKey(key) {
@@ -225,7 +263,17 @@ function processKey(key) {
         }
     }
     if (key == "A") {
-        stalls.push(new Stall(userPosition[0], userPosition[1], 3, 5, 0));
+        let width = 3;
+        let length = 5;
+        let rotation = 0;
+        if (selectedStall != -1) {
+            const stall = stalls[selectedStall];
+            width = stall.width;
+            length = stall.length;
+            rotation = stall.rotation;
+        }
+
+        stalls.push(new Stall(userPosition[0], userPosition[1], width, length, rotation, stallLabel.value));
         selectedStall = stalls.length - 1;
     }
     if (key == "P") {
@@ -297,5 +345,5 @@ let lastKeyEvent = 0;
 
 document.addEventListener("keydown", (event) => {
     processKey(event.key);
-    console.log(event);
+    //console.log(event);
 });
