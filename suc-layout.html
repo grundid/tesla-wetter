@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="turf.suc.tools.js"></script>
     <script src="suc-layout.js"></script>
-    <title>Tesla Wetter</title>
+    <title>Tesla Supercharger Layout</title>
     <style>
         body {
             font-family: sans-serif;
@@ -54,6 +54,20 @@
         <canvas id="sucCanvas" width="500" height="500" style="background-color: aquamarine;">
         </canvas>
     </div>
+
+    <div>
+        <button onclick="processKey('W');">Width+</button>
+        <button onclick="processKey('w');">Width-</button>
+        <button onclick="processKey('L');">Length+</button>
+        <button onclick="processKey('l');">Length-</button>
+        <button onclick="processKey('+');">Zoom+</button>
+        <button onclick="processKey('-');">Zoom-</button>
+        <button onclick="processKey('r');">Rotate left</button>
+        <button onclick="processKey('R');">Rotate right</button>
+        <button onclick="processKey('A');">Add stall</button>
+
+    </div>
+
 
     <div id="errorLog"></div>
 </body>
