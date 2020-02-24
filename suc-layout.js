@@ -17,9 +17,9 @@ class Stall {
 
 
 
-//let position = [9.166627, 49.277359];
+let position = [9.166627, 49.277359]; // real position
 //let userPosition = [9.166627, 49.277359];
-let position = [9.1773, 49.2756];
+//let position = [9.1773, 49.2756]; // browser
 let userPosition = [9.166627, 49.277359];
 let scale = 8;
 let points;
@@ -179,6 +179,9 @@ function processKey(key) {
     if (key == "A") {
         stalls.push(new Stall(userPosition[0], userPosition[1], 3, 5, 0));
         selectedStall = stalls.length - 1;
+    }
+    if (key == "P") {
+        position = userPosition;
     }
 
     testSuc();
