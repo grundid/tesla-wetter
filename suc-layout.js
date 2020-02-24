@@ -182,6 +182,7 @@ function processKey(key) {
     }
     if (key == "P") {
         position = userPosition;
+        center = projection.toMercator(point(position))["geometry"]["coordinates"];
     }
 
     testSuc();
