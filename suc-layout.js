@@ -17,16 +17,17 @@ class Stall {
 
 
 
-let position = [9.166627, 49.277359]; // real position
+//let position = [9.166627, 49.277359]; // real position
 //let userPosition = [9.166627, 49.277359];
-//let position = [9.1773, 49.2756]; // browser
+let position = [9.1773, 49.2756]; // browser
 let userPosition = [9.166627, 49.277359];
 let scale = 8;
 let points;
 const stalls = [new Stall(9.166627, 49.277359, 3, 5, 0)];
 let selectedStall = 0;
 
-
+let canvasWidth = 0;
+let canvasHeight = 0;
 let center;
 
 
@@ -50,13 +51,17 @@ function initCanvas() {
     ctx = canvas.getContext("2d");
     center = projection.toMercator(point(position))["geometry"]["coordinates"];
     print(center);
+    canvasWidth = canvas.width;
+    canvasHeight = canvas.height;
+    print(canvas.width, " x ", canvas.height);
 
-    ctx.translate(250, 250);
+    ctx.translate(canvasWidth / 2, canvasHeight / 2);
 }
 
-function drawStall(context, points) {
+function drawStall(context, points, selectedStall) {
     context.beginPath();
     context.lineWidth = 1;
+    context.strokeStyle = selectedStall ? "red" : "black";
 
     context.moveTo((points[0][0] - center[0]) * scale, -1 * (points[0][1] - center[1]) * scale);
     context.lineTo((points[1][0] - center[0]) * scale, -1 * (points[1][1] - center[1]) * scale);
@@ -82,13 +87,14 @@ function drawPosition(context, position) {
 
 const print = console.log;
 
-function testSuc() {
-    ctx.clearRect(-250, -250, 500, 500);
-    for (let stall of stalls) {
+function drawSuc() {
+    ctx.clearRect(-(canvasWidth / 2), -(canvasHeight / 2), canvasWidth, canvasHeight);
+    for (let x = 0; x < stalls.length; x++) {
+        const stall = stalls[x];
         const distance = Math.sqrt((stall.width / 2) * (stall.width / 2) + (stall.length / 2) * (stall.length / 2));
         const angle = Math.asin((stall.width / 2) / distance) * (180 / Math.PI);
 
-        print("width: ", stall.width, " length: ", stall.length, " angle: ", angle, " distance: ", distance, " scale: " + scale);
+        //print("width: ", stall.width, " length: ", stall.length, " angle: ", angle, " distance: ", distance, " scale: " + scale);
 
         const position = [stall.x, stall.y];
 
@@ -103,26 +109,23 @@ function testSuc() {
         points.push(projection.toMercator(topRight["geometry"])["coordinates"]);
         points.push(projection.toMercator(bottomRight["geometry"])["coordinates"]);
         points.push(projection.toMercator(bottomLeft["geometry"])["coordinates"]);
-        drawStall(ctx, points);
+        drawStall(ctx, points, selectedStall == x);
 
     }
 
-
-
     drawPosition(ctx, userPosition);
-
 }
 
 function updatePosition(position) {
     console.log(position);
     pos = position.coords;
     userPosition = [pos.longitude, pos.latitude];
-    testSuc();
+    window.requestAnimationFrame(drawSuc);
 }
 
 document.addEventListener("DOMContentLoaded", function (e) {
     initCanvas();
-    testSuc();
+    drawSuc();
 
     let watchId = navigator.geolocation.watchPosition(updatePosition, function (positionError) {
         console.log(positionError);
@@ -130,21 +133,29 @@ document.addEventListener("DOMContentLoaded", function (e) {
         enableHighAccuracy: true,
         maximumAge: 60000
     });
-    //    window.requestAnimationFrame(updateScreen);
 });
 
 function processKey(key) {
     if ((key === "W")) {
-        stalls[selectedStall].width += 0.10;
+        if (stalls[selectedStall].width < 5) {
+
+            stalls[selectedStall].width += 0.10;
+        }
     }
     if ((key === "w")) {
-        stalls[selectedStall].width -= 0.10;
+        if (stalls[selectedStall].width > 2) {
+            stalls[selectedStall].width -= 0.10;
+        }
     }
     if ((key === "L")) {
-        stalls[selectedStall].length += 0.10;
+        if (stalls[selectedStall].length < 8) {
+            stalls[selectedStall].length += 0.10;
+        }
     }
     if ((key === "l")) {
-        stalls[selectedStall].length -= 0.10;
+        if (stalls[selectedStall].length > 4) {
+            stalls[selectedStall].length -= 0.10;
+        }
     }
     if ((key === "R")) {
         stalls[selectedStall].rotation += 5;
@@ -184,9 +195,11 @@ function processKey(key) {
         position = userPosition;
         center = projection.toMercator(point(position))["geometry"]["coordinates"];
     }
-
-    testSuc();
-
+    if (key == "D") {
+        stalls.length = 0;
+        selectedStall = -1;
+    }
+    window.requestAnimationFrame(drawSuc);
 }
 
 document.addEventListener("keydown", (event) => {

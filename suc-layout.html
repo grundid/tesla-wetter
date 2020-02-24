@@ -57,7 +57,7 @@
 <body>
     <h4>Shows you the layout of the closest supercharger.</h4>
     <div>
-        <canvas id="sucCanvas" width="500" height="500" style="background-color: aquamarine;">
+        <canvas id="sucCanvas" width="960" height="500" style="background-color: #F0F0F0;">
         </canvas>
     </div>
 
@@ -70,11 +70,12 @@
         <button onclick="processKey('-');">Zoom-</button>
         <button onclick="processKey('r');">Rotate left</button>
         <button onclick="processKey('R');">Rotate right</button>
+    </div>
+    <div>
         <button onclick="processKey('A');">Add stall</button>
         <button onclick="processKey('P');">Reset Position</button>
+        <button onclick="processKey('D');">Delete all stalls</button>
     </div>
-
-
     <div id="errorLog"></div>
 </body>
 
